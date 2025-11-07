@@ -24,7 +24,7 @@ import java.util.UUID;
 public class KycService {
 
     private final UserRepository userRepository;
-    private final DocumentStorageService storageService;
+    //private final DocumentStorageService storageService;
     private final NotificationService notificationService;
 
     @Transactional
@@ -39,7 +39,7 @@ public class KycService {
                 "status", user.getKycStatus().name()
         );
     }
-
+/*
     @Transactional
     public KycSubmissionResponse submitDocuments(UUID userId, MultipartFile idDocument, String sourceOfFunds) {
         User user = userRepository.findById(userId)
@@ -65,7 +65,7 @@ public class KycService {
                 .status(user.getKycStatus().name())
                 .build();
     }
-
+*/
     @Transactional(readOnly = true)
     public KycStatusResponse getKycStatus(UUID userId) {
         User user = userRepository.findById(userId)
