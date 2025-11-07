@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: nhx-kesy-platform
+  profiles:
+    active: prod
+
+logging:
+  level:
+    com.javaguy.nhx: INFO
+    org.springframework.security: INFO
