@@ -2,18 +2,14 @@ package com.javaguy.nhx.service;
 
 import com.javaguy.nhx.exception.ResourceNotFoundException;
 import com.javaguy.nhx.model.dto.response.KycStatusResponse;
-import com.javaguy.nhx.model.dto.response.KycSubmissionResponse;
 import com.javaguy.nhx.model.entity.User;
 import com.javaguy.nhx.model.enums.KycStatus;
 import com.javaguy.nhx.repository.UserRepository;
-import com.javaguy.nhx.service.storage.DocumentStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

@@ -49,7 +49,7 @@ public class KycController {
         Map<String, String> response = kycService.initiateKyc(currentUser.getId());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
-
+/*
     @Operation(summary = "Submit KYC documents", description = "Upload ID document and proof of address for manual review.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "KYC documents submitted",
@@ -72,7 +72,7 @@ public class KycController {
         KycSubmissionResponse response = kycService.submitDocuments(currentUser.getId(), idDocument, sourceOfFunds);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
-
+*/
     @Operation(summary = "Get KYC status", description = "Retrieves the current KYC status of the authenticated user.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "KYC status retrieved successfully",
