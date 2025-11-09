@@ -1,6 +1,8 @@
 package com.javaguy.nhx.controller;
 
 import com.javaguy.nhx.model.dto.request.DetailsRequest;
+import com.javaguy.nhx.model.dto.request.UserProfileRequest;
+import com.javaguy.nhx.model.dto.response.UserProfileResponse;
 import com.javaguy.nhx.security.UserPrincipal;
 import com.javaguy.nhx.service.UserService;
 import jakarta.validation.Valid;
@@ -47,5 +49,37 @@ public class UserController {
             @AuthenticationPrincipal UserPrincipal currentUser) {
         userService.submitDetails(currentUser.getId(), request);
         return ResponseEntity.ok(Map.of("message", "Details saved"));
+    }
+
+    @Operation(summary = "Complete user profile details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile details saved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserProfileResponse.class)))
+    })
+    @PostMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> saveProfile(@Valid @RequestBody UserProfileRequest request,
+                                         @AuthenticationPrincipal UserPrincipal currentUser) {
+        UserProfileResponse response = userService.saveProfile(currentUser.getId(), request);
+        return ResponseEntity.ok(
+                java.util.Map.of(
+                        "message", "Profile details saved successfully",
+                        "profileComplete", response.isProfileComplete()
+                )
+        );
+    }
+
+    @Operation(summary = "Retrieve user profile")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile retrieved",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserProfileResponse.class)))
+    })
+    @GetMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserProfileResponse> getProfile(@AuthenticationPrincipal UserPrincipal currentUser) {
+        UserProfileResponse response = userService.getProfile(currentUser.getId());
+        return ResponseEntity.ok(response);
     }
 }
