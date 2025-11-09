@@ -6,7 +6,7 @@ import com.javaguy.nhx.model.dto.request.VerifyOtpRequest;
 import com.javaguy.nhx.model.dto.response.AuthResponse;
 import com.javaguy.nhx.service.AuthService;
 import com.javaguy.nhx.security.JwtTokenProvider;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
 import java.util.Optional;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 @RestController
@@ -67,19 +66,9 @@ public class AuthController {
                             schema = @Schema(implementation = Map.class)))
     })
     @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthResponse> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
         AuthResponse authResponse = authService.verifyOtp(request);
-
-        String accessToken = jwtTokenProvider.generateToken(authResponse.getUserId());
-        String refreshToken = jwtTokenProvider.generateRefreshToken();
-
-        ResponseCookie jwtCookie = jwtTokenProvider.generateJwtCookie(accessToken);
-        ResponseCookie refreshCookie = jwtTokenProvider.generateJwtRefreshCookie(refreshToken);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(authResponse);
+        return buildAuthResponseWithCookies(authResponse);
     }
 
     @Operation(summary = "User login", description = "Authenticates a user with email and password, returning JWT and refresh tokens in HTTP-only cookies.")
@@ -95,21 +84,10 @@ public class AuthController {
                             schema = @Schema(implementation = Map.class)))
     })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse authResponse = authService.login(request);
-
-        String accessToken = jwtTokenProvider.generateToken(authResponse.getUserId());
-        String refreshToken = jwtTokenProvider.generateRefreshToken();
-
-        ResponseCookie jwtCookie = jwtTokenProvider.generateJwtCookie(accessToken);
-        ResponseCookie refreshCookie = jwtTokenProvider.generateJwtRefreshCookie(refreshToken);
-
         log.info("Login successful for user with ID: {}", authResponse.getUserId());
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(authResponse);
+        return buildAuthResponseWithCookies(authResponse);
     }
 
     @Operation(summary = "Refresh access token", description = "Rotates refresh token and issues a new JWT using the refresh token stored in httpOnly cookie.")
@@ -122,30 +100,16 @@ public class AuthController {
                             schema = @Schema(implementation = Map.class)))
     })
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] cookies = Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]);
-        String cookieName = jwtTokenProvider.getJwtRefreshCookieName();
-        String refreshToken = Arrays.stream(cookies)
-                .filter(c -> cookieName.equals(c.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
+    public ResponseEntity<?> refresh(HttpServletRequest request) {
+        String refreshToken = extractRefreshTokenFromCookie(request);
+
         if (refreshToken == null || refreshToken.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Missing refresh token"));
         }
+
         AuthResponse authResponse = authService.refreshToken(refreshToken);
-
-        String newAccessToken = jwtTokenProvider.generateToken(authResponse.getUserId());
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken();
-
-        ResponseCookie jwtCookie = jwtTokenProvider.generateJwtCookie(newAccessToken);
-        ResponseCookie refreshCookie = jwtTokenProvider.generateJwtRefreshCookie(newRefreshToken);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(authResponse);
+        return buildAuthResponseWithCookies(authResponse);
     }
 
     @Operation(summary = "Logout user", description = "Logs out the currently authenticated user by invalidating their refresh token and clearing JWT cookies.")
@@ -155,15 +119,13 @@ public class AuthController {
                             schema = @Schema(implementation = Map.class)))
     })
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] cookies = Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]);
-        String refreshCookieName = jwtTokenProvider.getJwtRefreshCookieName();
-        Arrays.stream(cookies)
-                .filter(c -> refreshCookieName.equals(c.getName()))
-                .map(Cookie::getValue)
-                .findFirst().ifPresent(authService::logout);
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
+        String refreshToken = extractRefreshTokenFromCookie(request);
 
-        // Clear cookies
+        if (refreshToken != null) {
+            authService.logout(refreshToken);
+        }
+
         ResponseCookie jwtCookie = jwtTokenProvider.getCleanJwtCookie();
         ResponseCookie refreshCookie = jwtTokenProvider.getCleanJwtRefreshCookie();
 
@@ -171,5 +133,26 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(Map.of("message", "Logged out successfully"));
+    }
+
+    private ResponseEntity<AuthResponse> buildAuthResponseWithCookies(AuthResponse authResponse) {
+        ResponseCookie jwtCookie = jwtTokenProvider.generateJwtCookie(authResponse.getAccessToken());
+        ResponseCookie refreshCookie = jwtTokenProvider.generateJwtRefreshCookie(authResponse.getRefreshToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(authResponse);
+    }
+
+    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]);
+        String cookieName = jwtTokenProvider.getJwtRefreshCookieName();
+
+        return Arrays.stream(cookies)
+                .filter(c -> cookieName.equals(c.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 }
