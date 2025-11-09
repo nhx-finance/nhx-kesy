@@ -1,10 +1,12 @@
 package com.javaguy.nhx.model.enums;
 
 public enum KycStatus {
+    UNVERIFIED,
+    PENDING,
     INITIATED,
-    PAYMENT_CONFIRMED,
+    //PAYMENT_CONFIRMED,
     SUBMITTED,
     VERIFIED,
     REJECTED,
-    RESUBMISSION_REQUIRED
+    RESUBMISSIONREQUIRED
 }

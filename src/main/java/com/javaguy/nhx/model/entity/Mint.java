@@ -54,7 +54,4 @@ public class Mint {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Boolean settled = false;
 }

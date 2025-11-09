@@ -1,13 +1,12 @@
 package com.javaguy.nhx.model.dto.response;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
+@Data
 @Builder
 public class KycSubmissionResponse {
     private String kycId;
     private String status;
+    private String message;
 }
