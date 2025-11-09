@@ -1,15 +1,22 @@
 package com.javaguy.nhx.service;
 
 import com.javaguy.nhx.exception.ResourceNotFoundException;
+import com.javaguy.nhx.model.dto.request.KycSubmissionRequest;
 import com.javaguy.nhx.model.dto.response.KycStatusResponse;
+import com.javaguy.nhx.model.dto.response.KycSubmissionResponse;
+import com.javaguy.nhx.model.entity.KycDocument;
 import com.javaguy.nhx.model.entity.User;
 import com.javaguy.nhx.model.enums.KycStatus;
+import com.javaguy.nhx.repository.KycDocumentRepository;
 import com.javaguy.nhx.repository.UserRepository;
+import com.javaguy.nhx.service.storage.DocumentStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,66 +27,192 @@ import java.util.UUID;
 public class KycService {
 
     private final UserRepository userRepository;
-    //private final DocumentStorageService storageService;
+    private final KycDocumentRepository kycDocumentRepository;
+    private final DocumentStorageService storageService;
     private final NotificationService notificationService;
 
     @Transactional
     public Map<String, String> initiateKyc(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        //TODO: handle payment
+
+        // TODO: Implement payment logic when ready
         user.setKycStatus(KycStatus.INITIATED);
         userRepository.save(user);
+
+        log.info("KYC initiated for user {}", userId);
+
         return Map.of(
                 "kycId", user.getId().toString(),
-                "status", user.getKycStatus().name()
+                "status", user.getKycStatus().name(),
+                "message", "KYC initiated. Proceed with document submission."
         );
     }
-/*
+
     @Transactional
-    public KycSubmissionResponse submitDocuments(UUID userId, MultipartFile idDocument, String sourceOfFunds) {
+    public KycSubmissionResponse submitDocuments(
+            UUID userId,
+            KycSubmissionRequest request,
+            MultipartFile documentFront,
+            MultipartFile documentBack) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String idDocPath;
-        try {
-            idDocPath = storageService.store("kyc/" + userId + "/id", idDocument);
-        } catch (IOException e) {
-            log.error("Failed to store KYC documents for user {}: {}", userId, e.getMessage());
-            throw new RuntimeException("Failed to store KYC documents", e);
+        // Validate user can submit KYC
+        if (user.getKycStatus() == KycStatus.VERIFIED) {
+            throw new IllegalStateException("KYC already verified");
         }
 
-        user.setKycStatus(KycStatus.SUBMITTED);
-        userRepository.save(user);
-        log.info("KYC documents submitted by user {}. idDoc={}", userId, idDocPath);
+        // Validate required documents
+        if (documentFront == null || documentFront.isEmpty()) {
+            throw new IllegalArgumentException("Document front is required");
+        }
 
-        // Notify admins to review
-        notificationService.notifyAdminsOnKycSubmission(user);
+        if (documentBack == null || documentBack.isEmpty()) {
+            throw new IllegalArgumentException("Document back is required");
+        }
 
-        return KycSubmissionResponse.builder()
-                .kycId(user.getId().toString())
-                .status(user.getKycStatus().name())
-                .build();
+        validateDocumentType(documentFront);
+        validateDocumentType(documentBack);
+
+        try {
+            String frontPath = storageService.store("kyc/" + userId, documentFront);
+            String backPath = storageService.store("kyc/" + userId, documentBack);
+
+            KycDocument kycDoc = KycDocument.builder()
+                    .user(user)
+                    .fullName(request.getFullName())
+                    .dob(request.getDob())
+                    .documentType(request.getDocumentType())
+                    .documentNumber(request.getDocumentNumber())
+                    .documentFrontPath(frontPath)
+                    .documentBackPath(backPath)
+                    .build();
+
+            kycDocumentRepository.save(kycDoc);
+
+            user.setKycStatus(KycStatus.SUBMITTED);
+            userRepository.save(user);
+
+            log.info("KYC documents submitted by user {}. Front: {}, Back: {}",
+                    userId, frontPath, backPath);
+
+            notificationService.notifyAdminsOnKycSubmission(user);
+
+            return KycSubmissionResponse.builder()
+                    .kycId(kycDoc.getId().toString())
+                    .status(user.getKycStatus().name())
+                    .message("KYC documents submitted successfully. Your submission is under review.")
+                    .build();
+
+        } catch (IOException e) {
+            log.error("Failed to store KYC documents for user {}: {}", userId, e.getMessage());
+            throw new RuntimeException("Failed to upload KYC documents. Please try again.", e);
+        }
     }
-*/
+
     @Transactional(readOnly = true)
     public KycStatusResponse getKycStatus(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        List<String> documents = List.of();
+        if (user.getKycStatus() == KycStatus.SUBMITTED ||
+                user.getKycStatus() == KycStatus.VERIFIED) {
+
+            List<KycDocument> kycDocs = kycDocumentRepository.findByUserId(userId);
+            if (!kycDocs.isEmpty()) {
+                documents = List.of("documentFront", "documentBack");
+            }
+        }
+
         return KycStatusResponse.builder()
                 .status(user.getKycStatus())
-                .documents(user.getKycStatus() == KycStatus.SUBMITTED || user.getKycStatus() == KycStatus.VERIFIED
-                        ? List.of("idDocument","proofOfAddress") : List.of())
+                .documents(documents)
                 .build();
     }
 
     @Transactional
-    public void markKycStatus(UUID userId, KycStatus status) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public void updateKycStatus(UUID kycDocumentId, KycStatus status, String notes) {
+        KycDocument kycDoc = kycDocumentRepository.findById(kycDocumentId)
+                .orElseThrow(() -> new ResourceNotFoundException("KYC document not found"));
+
+        User user = kycDoc.getUser();
+        KycStatus oldStatus = user.getKycStatus();
+
         user.setKycStatus(status);
         userRepository.save(user);
-        log.info("Admin set KYC status {} for user {}", status, userId);
+
+        log.info("Admin updated KYC status from {} to {} for user {}. Notes: {}",
+                oldStatus, status, user.getId(), notes);
+
+        notificationService.notifyUserOnKycStatusChange(user, status, notes);
+    }
+
+    @Transactional
+    public void updateKycStatusByUserId(UUID userId, KycStatus status, String notes) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        KycStatus oldStatus = user.getKycStatus();
+        user.setKycStatus(status);
+        userRepository.save(user);
+
+        log.info("Admin updated KYC status from {} to {} for user {}. Notes: {}",
+                oldStatus, status, userId, notes);
+
+        notificationService.notifyUserOnKycStatusChange(user, status, notes);
+    }
+
+    @Transactional(readOnly = true)
+    public KycDocument getKycDocumentById(UUID kycDocumentId) {
+        return kycDocumentRepository.findById(kycDocumentId)
+                .orElseThrow(() -> new ResourceNotFoundException("KYC document not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<KycDocument> getKycDocumentsByUserId(UUID userId) {
+        return kycDocumentRepository.findByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isKycVerified(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return user.getKycStatus() == KycStatus.VERIFIED;
+    }
+
+    private void validateDocumentType(MultipartFile file) {
+        String contentType = file.getContentType();
+        String filename = file.getOriginalFilename();
+
+        if (contentType == null || filename == null) {
+            throw new IllegalArgumentException("Invalid file");
+        }
+
+        boolean isValidType = contentType.equals("image/jpeg") ||
+                contentType.equals("image/jpg") ||
+                contentType.equals("image/png") ||
+                contentType.equals("application/pdf");
+
+        boolean hasValidExtension = filename.toLowerCase().endsWith(".jpg") ||
+                filename.toLowerCase().endsWith(".jpeg") ||
+                filename.toLowerCase().endsWith(".png") ||
+                filename.toLowerCase().endsWith(".pdf");
+
+        if (!isValidType || !hasValidExtension) {
+            throw new IllegalArgumentException(
+                    "Invalid document type. Accepted formats: JPG, JPEG, PNG, PDF"
+            );
+        }
+
+        long maxSize = 10 * 1024 * 1024;
+        if (file.getSize() > maxSize) {
+            throw new IllegalArgumentException(
+                    "File size exceeds maximum allowed size of 10MB"
+            );
+        }
     }
 }
