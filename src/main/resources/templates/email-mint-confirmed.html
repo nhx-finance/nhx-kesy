@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email-base :: layout}">
+<body>
+<div th:fragment="content" class="content">
+    <h2>Mint Request Confirmed</h2>
+
+    <p>Hello <span th:text="${firstName}">there</span>,</p>
+
+    <div class="success-box">
+        <p style="margin: 0;">
+            <strong>✅ Your payment has been confirmed!</strong>
+        </p>
+    </div>
+
+    <p>Token minting has been initiated.</p>
+
+    <div class="info-box">
+        <h3 style="margin-top: 0;">Details:</h3>
+        <p style="margin: 5px 0;"><strong>Amount:</strong> <span th:text="${amount}"></span> KES</p>
+        <p style="margin: 5px 0;"><strong>Wallet:</strong> <span th:text="${walletAddress}"></span></p>
+        <p style="margin: 5px 0;"><strong>Restriction Period:</strong> 40-50 days from mint date</p>
+    </div>
+
+    <p>Tokens will be minted to treasury first, then transferred to your wallet after the settlement period.</p>
+
+    <p>You will receive another notification once tokens are transferred to your wallet.</p>
+
+    <div th:if="${notes}" class="info-box">
+        <p style="margin: 0;" th:text="${notes}"></p>
+    </div>
+
+    <a th:href="${mintsUrl}" class="button">Track Progress</a>
+
+    <p>Best regards,<br>
+        <span th:text="${appName}">NHX</span> Team</p>
+</div>
+</body>
+</html>

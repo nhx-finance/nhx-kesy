@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email-base :: layout}">
+<body>
+<div th:fragment="content" class="content">
+    <h2>KYC Verification - Action Required</h2>
+
+    <p>Hello <span th:text="${firstName}">there</span>,</p>
+
+    <p>We were unable to approve your KYC verification at this time.</p>
+
+    <div class="warning-box">
+        <p style="margin: 0;">
+            <strong>Reason:</strong><br>
+            <span th:text="${notes ?: 'Please check your documents and try again'}"></span>
+        </p>
+    </div>
+
+    <p>Please review the feedback above and resubmit your documents with the necessary corrections.</p>
+
+    <a th:href="${dashboardUrl}" class="button">Resubmit Documents</a>
+
+    <p>If you have any questions, please don't hesitate to contact our support team.</p>
+
+    <p>Best regards,<br>
+        <span th:text="${appName}">NHX</span> Team</p>
+</div>
+</body>
+</html>

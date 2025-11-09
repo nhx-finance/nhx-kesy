@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email-base :: layout}">
+<body>
+<div th:fragment="content" class="content">
+    <h2>🎉 KYC Verification Approved!</h2>
+
+    <p>Hello <span th:text="${firstName}">there</span>,</p>
+
+    <div class="success-box">
+        <p style="margin: 0;">
+            <strong>✅ Great news! Your KYC verification has been approved.</strong>
+        </p>
+    </div>
+
+    <p>You can now access the full features of <span th:text="${appName}">NHX</span>:</p>
+
+    <ul>
+        <li>Add whitelisted wallets</li>
+        <li>Request KESY token minting (minimum 10M KES)</li>
+        <li>View your transaction history</li>
+    </ul>
+
+    <a th:href="${dashboardUrl}" class="button">Go to Dashboard</a>
+
+    <p>Best regards,<br>
+        <span th:text="${appName}">NHX</span> Team</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email-base :: layout}">
+<body>
+<div th:fragment="content" class="content">
+    <h2>KYC Documents Received</h2>
+
+    <p>Hello <span th:text="${firstName}">there</span>,</p>
+
+    <div class="info-box">
+        <p style="margin: 0;">
+            <strong>✓ We have received your KYC documents.</strong>
+        </p>
+    </div>
+
+    <p>Your documents are currently under review by our team. This process typically takes 2-3 business days.</p>
+
+    <p>You will receive another email once the review is complete.</p>
+
+    <p>Thank you for your patience!</p>
+
+    <p>Best regards,<br>
+        <span th:text="${appName}">NHX</span> Team</p>
+</div>
+</body>
+</html>
