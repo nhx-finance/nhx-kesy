@@ -1,25 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email-base :: layout}">
-<body>
-<div th:fragment="content" class="content">
-    <h2>🔔 New KYC Submission</h2>
-
-    <p>A user has submitted KYC documents for manual review.</p>
-
-    <div class="info-box">
-        <h3 style="margin-top: 0;">User Details:</h3>
-        <p style="margin: 5px 0;"><strong>User ID:</strong> <span th:text="${userId}"></span></p>
-        <p style="margin: 5px 0;"><strong>Email:</strong> <span th:text="${userEmail}"></span></p>
-        <p style="margin: 5px 0;"><strong>Name:</strong> <span th:text="${userName}"></span></p>
-        <p style="margin: 5px 0;"><strong>Submitted At:</strong> <span th:text="${submittedAt}"></span></p>
-    </div>
-
-    <p>Please review the submission and update the KYC status accordingly.</p>
-
-    <a th:href="${adminPortalUrl}" class="button">Review in Admin Portal</a>
-
-    <p>Best regards,<br>
-        <span th:text="${appName}">NHX</span> System</p>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email-base :: layout(~{::content})}">
+<div th:fragment="content">
+    <p>Dear Admin,</p>
+    <p>A new KYC submission has been received and is awaiting your review.</p>
+    <ul>
+        <li><strong>User ID:</strong> <span th:text="${userId}"></span></li>
+        <li><strong>User Email:</strong> <span th:text="${userEmail}"></span></li>
+        <li><strong>User Name:</strong> <span th:text="${userName}"></span></li>
+        <li><strong>Submitted At:</strong> <span th:text="${submittedAt}"></span></li>
+    </ul>
+    <p>Please log in to the admin portal to review the documents and update the KYC status.</p>
+    <p style="text-align: center;">
+        <a th:href="${adminPortalUrl}" class="button">Go to Admin Portal</a>
+    </p>
 </div>
-</body>
 </html>

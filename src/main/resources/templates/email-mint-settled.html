@@ -1,39 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email-base :: layout}">
-<body>
-<div th:fragment="content" class="content">
-    <h2>🎉 Tokens Successfully Minted!</h2>
-
-    <p>Hello <span th:text="${firstName}">there</span>,</p>
-
-    <div class="success-box">
-        <p style="margin: 0;">
-            <strong>Congratulations! Your KESY tokens have been successfully minted and transferred to your wallet.</strong>
-        </p>
-    </div>
-
-    <div class="info-box">
-        <h3 style="margin-top: 0;">Transaction Details:</h3>
-        <p style="margin: 5px 0;"><strong>Amount:</strong> <span th:text="${amount}"></span> KES worth of KESY tokens</p>
-        <p style="margin: 5px 0;"><strong>Wallet:</strong> <span th:text="${walletAddress}"></span></p>
-        <p style="margin: 5px 0;" th:if="${transactionId}"><strong>Transaction ID:</strong> <span th:text="${transactionId}"></span></p>
-        <p style="margin: 5px 0;" th:if="${restrictionEndDate}"><strong>Restriction End Date:</strong> <span th:text="${restrictionEndDate}"></span></p>
-    </div>
-
-    <div class="warning-box" th:if="${restrictionEndDate}">
-        <p style="margin: 0;">
-            <strong>⚠️ Note:</strong> These tokens are subject to a restriction period until <span th:text="${restrictionEndDate}"></span>.
-        </p>
-    </div>
-
-    <div th:if="${notes}" class="info-box">
-        <p style="margin: 0;" th:text="${notes}"></p>
-    </div>
-
-    <a th:href="${mintsUrl}" class="button">View Transaction History</a>
-
-    <p>Best regards,<br>
-        <span th:text="${appName}">NHX</span> Team</p>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email-base :: layout(~{::content})}">
+<div th:fragment="content">
+    <p>Dear <span th:text="${firstName}"></span>,</p>
+    <p>Good news! Your mint request (ID: <span th:text="${requestId}"></span>) for **<span th:text="${amount}"></span> KES** has been **settled**.</p>
+    <p>Your KESY tokens have been successfully transferred to your wallet: <span th:text="${walletAddress}"></span>.</p>
+    <p style="text-align: center;">
+        <a th:href="${mintsUrl}" class="button">View Mint Requests</a>
+    </p>
+    <p>If you have any questions, feel free to reach out to our support team.</p>
 </div>
-</body>
 </html>

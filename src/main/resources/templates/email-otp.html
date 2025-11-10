@@ -1,23 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email-base :: layout}">
-<body>
-<div th:fragment="content" class="content">
-    <p>Hello,</p>
-
-    <p>Your verification code is:</p>
-
-    <div class="code" th:text="${otp}">123456</div>
-
-    <div class="warning-box">
-        <p style="margin: 0;">
-            <strong>⏰ This code will expire in <span th:text="${expiryMinutes}">10</span> minutes.</strong>
-        </p>
-    </div>
-
-    <p>If you didn't request this code, please ignore this email.</p>
-
-    <p>Best regards,<br>
-        <span th:text="${appName}">NHX</span> Team</p>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email-base :: layout(~{::content})}">
+<div th:fragment="content">
+    <p>Dear User,</p>
+    <p>Your One-Time Password (OTP) for verification is:</p>
+    <h2 style="text-align: center; color: #007bff; font-size: 24px; letter-spacing: 5px;" th:text="${otp}">123456</h2>
+    <p>This OTP is valid for <span th:text="${expiryMinutes}">10</span> minutes.</p>
+    <p>Please do not share this code with anyone.</p>
 </div>
-</body>
 </html>

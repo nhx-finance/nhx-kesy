@@ -1,27 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email-base :: layout}">
-<body>
-<div th:fragment="content" class="content">
-    <h2>Welcome, <span th:text="${firstName}">there</span>! 👋</h2>
-
-    <p>Your account has been successfully created. We're excited to have you on board!</p>
-
-    <div class="info-box">
-        <h3 style="margin-top: 0;">Next Steps:</h3>
-        <ol style="margin: 0; padding-left: 20px;">
-            <li>Complete your profile details</li>
-            <li>Submit KYC documents for verification</li>
-            <li>Add your whitelisted wallet</li>
-            <li>Start minting KESY tokens</li>
-        </ol>
-    </div>
-
-    <a th:href="${dashboardUrl}" class="button">Go to Dashboard</a>
-
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email-base :: layout(~{::content})}">
+<div th:fragment="content">
+    <p>Dear <span th:text="${firstName}"></span>,</p>
+    <p>Welcome to <span th:text="${appName}"></span>! We're excited to have you on board.</p>
+    <p>You can now explore our platform and start your journey.</p>
+    <p style="text-align: center;">
+        <a th:href="${dashboardUrl}" class="button">Go to Dashboard</a>
+    </p>
     <p>If you have any questions, feel free to reach out to our support team.</p>
-
-    <p>Best regards,<br>
-        <span th:text="${appName}">NHX</span> Team</p>
+    <p>Best regards,<br/>The <span th:text="${appName}"></span> Team</p>
 </div>
-</body>
 </html>
