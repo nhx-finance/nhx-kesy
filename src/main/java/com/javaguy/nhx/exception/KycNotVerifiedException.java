@@ -1,7 +1,9 @@
 package com.javaguy.nhx.exception;
 
-public class KycNotVerifiedException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class KycNotVerifiedException extends BaseException {
     public KycNotVerifiedException(String message) {
-        super(message);
+        super(message, HttpStatus.FORBIDDEN);
     }
 }

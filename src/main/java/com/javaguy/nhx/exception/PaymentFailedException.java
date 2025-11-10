@@ -1,7 +1,9 @@
 package com.javaguy.nhx.exception;
 
-public class PaymentFailedException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class PaymentFailedException extends BaseException {
     public PaymentFailedException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }
