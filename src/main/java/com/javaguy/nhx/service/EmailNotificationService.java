@@ -1,5 +1,6 @@
 package com.javaguy.nhx.service;
 
+import com.javaguy.nhx.exception.EmailServiceException;
 import com.javaguy.nhx.model.entity.Mint;
 import com.javaguy.nhx.model.entity.User;
 import com.javaguy.nhx.model.enums.KycStatus;
@@ -174,6 +175,7 @@ public class EmailNotificationService implements NotificationService {
             log.info("Sent {} HTML email to: {}", type, to);
         } catch (MessagingException e) {
             log.error("Failed to send {} email to {}: {}", type, to, e.getMessage(), e);
+            throw new EmailServiceException("Failed to send " + type + " email to " + to, e);
         }
     }
 }
