@@ -1,5 +1,6 @@
 package com.javaguy.nhx.service.storage;
 
+import com.javaguy.nhx.exception.StorageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,15 +24,20 @@ public class LocalFileStorageService implements DocumentStorageService {
     private String basePath;
 
     @Override
-    public String store(String folder, MultipartFile file) throws IOException {
-        String safeFolder = folder == null ? "" : folder.replace("..", "");
-        Path targetDir = Paths.get(basePath, safeFolder);
-        Files.createDirectories(targetDir);
-        String filename = UUID.randomUUID() + "_" + sanitize(file.getOriginalFilename());
-        Path target = targetDir.resolve(filename);
-        Files.write(target, file.getBytes());
-        log.info("Stored file locally at {}", target);
-        return target.toAbsolutePath().toString();
+    public String store(String folder, MultipartFile file) throws StorageException {
+        try {
+            String safeFolder = folder == null ? "" : folder.replace("..", "");
+            Path targetDir = Paths.get(basePath, safeFolder);
+            Files.createDirectories(targetDir);
+            String filename = UUID.randomUUID() + "_" + sanitize(file.getOriginalFilename());
+            Path target = targetDir.resolve(filename);
+            Files.write(target, file.getBytes());
+            log.info("Stored file locally at {}", target);
+            return target.toAbsolutePath().toString();
+        } catch (IOException e) {
+            log.error("Failed to store file locally: {}", e.getMessage(), e);
+            throw new StorageException("Failed to store file locally", e);
+        }
     }
 
     private String sanitize(String name) {

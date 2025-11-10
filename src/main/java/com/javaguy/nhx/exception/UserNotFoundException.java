@@ -1,10 +1,9 @@
 package com.javaguy.nhx.exception;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
 
-public class UserNotFoundException extends RuntimeException {
-    public UserNotFoundException(@NotBlank @Email String s) {
-        super(s);
+public class UserNotFoundException extends BaseException {
+    public UserNotFoundException(String message) {
+        super(message, HttpStatus.NOT_FOUND);
     }
 }

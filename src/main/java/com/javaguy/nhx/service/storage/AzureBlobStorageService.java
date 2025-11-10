@@ -2,6 +2,8 @@ package com.javaguy.nhx.service.storage;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.javaguy.nhx.exception.StorageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -9,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -21,7 +22,7 @@ public class AzureBlobStorageService implements DocumentStorageService {
     private final BlobContainerClient blobContainerClient;
 
     @Override
-    public String store(String folder, MultipartFile file) throws IOException {
+    public String store(String folder, MultipartFile file) {
         try {
             String originalFilename = file.getOriginalFilename();
             String extension = (originalFilename != null && originalFilename.contains("."))
@@ -33,12 +34,18 @@ public class AzureBlobStorageService implements DocumentStorageService {
             BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
             blobClient.upload(file.getInputStream(), file.getSize(), true);
 
+            String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
+
+            blobClient.setHttpHeaders(new BlobHttpHeaders()
+                    .setContentType(contentType)
+                    .setContentDisposition("inline"));
+
             log.info("✅ Uploaded file to Azure Blob Storage: {}", blobClient.getBlobUrl());
             return blobClient.getBlobUrl();
 
         } catch (Exception e) {
             log.error("❌ Failed to upload file to Azure Blob Storage: {}", e.getMessage());
-            throw new IOException("Failed to upload file to Azure Blob Storage", e);
+            throw new StorageException("Failed to upload file to Azure Blob Storage", e);
         }
     }
 
@@ -60,7 +67,7 @@ public class AzureBlobStorageService implements DocumentStorageService {
 
         if (!blobClient.exists()) {
             log.warn("Blob not found for download: {}", blobName);
-            return null;
+            throw new StorageException("File not found: " + fileName);
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

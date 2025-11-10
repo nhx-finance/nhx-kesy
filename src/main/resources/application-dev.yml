@@ -20,6 +20,9 @@ spring:
     port: 1025
     username: mongsdev@nhx.com
     protocol: smtp
+storage:
+  kyc:
+    container-name: kyc-documents
 
 logging:
   level:

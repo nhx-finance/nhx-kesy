@@ -1,7 +1,9 @@
 package com.javaguy.nhx.exception;
 
-public class AccountDisabledException extends RuntimeException {
-    public AccountDisabledException(String accountIsDisabled) {
-        super(accountIsDisabled);
+import org.springframework.http.HttpStatus;
+
+public class AccountDisabledException extends BaseException {
+    public AccountDisabledException(String message) {
+        super(message, HttpStatus.FORBIDDEN);
     }
 }

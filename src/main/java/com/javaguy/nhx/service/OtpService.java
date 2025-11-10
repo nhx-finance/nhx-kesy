@@ -1,5 +1,6 @@
 package com.javaguy.nhx.service;
 
+import com.javaguy.nhx.exception.EmailServiceException;
 import com.javaguy.nhx.exception.InvalidOtpException;
 import com.javaguy.nhx.model.entity.Otp;
 import com.javaguy.nhx.repository.OtpRepository;
@@ -36,9 +37,9 @@ public class OtpService {
         try {
             emailNotificationService.sendOtpEmail(email, otpCode);
             log.info("✅ OTP sent to {}", email);
-        } catch (Exception e) {
+        } catch (EmailServiceException e) {
             log.error("❌ Failed to send OTP email to {}", email, e);
-            throw new RuntimeException("Failed to send OTP email", e);
+            throw new EmailServiceException("Failed to send OTP email", e);
         }
     }
 

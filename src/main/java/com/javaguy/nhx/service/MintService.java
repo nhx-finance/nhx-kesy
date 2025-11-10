@@ -1,7 +1,9 @@
 package com.javaguy.nhx.service;
 
+import com.javaguy.nhx.exception.InvalidMintAmountException;
+import com.javaguy.nhx.exception.KycNotVerifiedException;
 import com.javaguy.nhx.exception.ResourceNotFoundException;
-import com.javaguy.nhx.exception.ValidationException;
+import com.javaguy.nhx.exception.WalletMismatchException;
 import com.javaguy.nhx.model.dto.request.MintRequest;
 import com.javaguy.nhx.model.dto.response.MintResponse;
 import com.javaguy.nhx.model.dto.response.MintStatusResponse;
@@ -41,18 +43,18 @@ public class MintService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (user.getKycStatus() != KycStatus.VERIFIED) {
-            throw new ValidationException("KYC status must be VERIFIED to initiate a mint request");
+            throw new KycNotVerifiedException("KYC status must be VERIFIED to initiate a mint request");
         }
 
         if (request.getAmountKes().compareTo(MIN_MINT_AMOUNT) < 0) {
-            throw new ValidationException("Mint amount must be at least " + MIN_MINT_AMOUNT + " KES");
+            throw new InvalidMintAmountException("Mint amount must be at least " + MIN_MINT_AMOUNT + " KES");
         }
 
         Wallet wallet = walletRepository.findById(request.getWalletId())
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
 
         if (!wallet.getUser().getId().equals(userId)) {
-            throw new ValidationException("Wallet does not belong to the authenticated user");
+            throw new WalletMismatchException("Wallet does not belong to the authenticated user");
         }
 
         Mint mint = Mint.builder()
@@ -80,7 +82,7 @@ public class MintService {
 
         LocalDateTime dateCompleted = null;
         if (mint.getStatus() == MintStatus.TRANSFERRED || mint.getStatus() == MintStatus.FAILED) {
-            dateCompleted = mint.getCreatedAt(); 
+            dateCompleted = mint.getCreatedAt();
         }
 
         return MintStatusResponse.builder()

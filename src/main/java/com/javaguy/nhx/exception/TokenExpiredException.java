@@ -1,7 +1,9 @@
 package com.javaguy.nhx.exception;
 
-public class TokenExpiredException extends RuntimeException {
-    public TokenExpiredException(String s) {
-        super(s);
+import org.springframework.http.HttpStatus;
+
+public class TokenExpiredException extends BaseException {
+    public TokenExpiredException(String message) {
+        super(message, HttpStatus.UNAUTHORIZED);
     }
 }

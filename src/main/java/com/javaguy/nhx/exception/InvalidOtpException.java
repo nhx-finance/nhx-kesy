@@ -1,7 +1,9 @@
 package com.javaguy.nhx.exception;
 
-public class InvalidOtpException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InvalidOtpException extends BaseException {
     public InvalidOtpException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }
