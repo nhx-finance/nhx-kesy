@@ -53,8 +53,8 @@
         <div class="header">
             <h1 th:text="${appName}"></h1>
         </div>
-        <div class="content" th:fragment="layout">
-            <!-- Content will be injected here -->
+        <div class="content" th:fragment="layout(content)">
+            <th:block th:replace="${content}" />
         </div>
         <div class="footer">
             <p>If you have any questions, please contact <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}"></a>.</p>
