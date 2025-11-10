@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +17,7 @@ public interface MintRepository extends JpaRepository<Mint, UUID> {
     Page<Mint> findByStatus(MintStatus status, Pageable pageable);
     Page<Mint> findByUserId(UUID userId, Pageable pageable);
     Optional<Mint> findByUserIdAndId(UUID userId, UUID id);
+
+    // For UserService
+    List<Mint> findByUser(com.javaguy.nhx.model.entity.User user);
 }

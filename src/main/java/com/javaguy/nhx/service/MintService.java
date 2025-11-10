@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -35,7 +36,7 @@ public class MintService {
     private final WalletRepository walletRepository;
     private final NotificationService notificationService;
 
-    private static final BigDecimal MIN_MINT_AMOUNT = new BigDecimal("1000000.00");
+    private static final BigDecimal MIN_MINT_AMOUNT = new BigDecimal("10000000.00");
 
     @Transactional
     public MintResponse requestMint(UUID userId, MintRequest request) {
@@ -92,5 +93,12 @@ public class MintService {
                 .dateInitiated(mint.getCreatedAt())
                 .dateCompleted(dateCompleted)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Mint> getAllMintsForUser(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return mintRepository.findByUser(user);
     }
 }
