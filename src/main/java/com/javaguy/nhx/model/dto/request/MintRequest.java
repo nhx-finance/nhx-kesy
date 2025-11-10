@@ -11,7 +11,7 @@ import java.util.UUID;
 public class MintRequest {
 
     @NotNull(message = "Amount in KES is required")
-    @DecimalMin(value = "10000000.00", message = "Minimum mint amount is 10,000,000 KES")
+    @DecimalMin(value = "1000000.00", message = "Minimum mint amount is 1,000,000 KES")
     private BigDecimal amountKes;
 
     @NotNull(message = "Wallet ID is required")
