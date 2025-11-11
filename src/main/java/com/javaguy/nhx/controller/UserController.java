@@ -95,6 +95,8 @@ public class UserController {
             content = @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = Mint.class))))
     })
+    @GetMapping("/mints")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Mint>> getAllMints(@AuthenticationPrincipal UserPrincipal currentUser){
         return new ResponseEntity<>(mintService.getAllMintsForUser(currentUser.getId()), HttpStatus.OK);
     }
