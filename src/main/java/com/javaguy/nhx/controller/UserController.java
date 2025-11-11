@@ -2,6 +2,7 @@ package com.javaguy.nhx.controller;
 
 import com.javaguy.nhx.model.dto.request.DetailsRequest;
 import com.javaguy.nhx.model.dto.request.UserProfileRequest;
+import com.javaguy.nhx.model.dto.response.MintResponseDto;
 import com.javaguy.nhx.model.dto.response.UserProfileResponse;
 import com.javaguy.nhx.model.entity.Mint;
 import com.javaguy.nhx.security.UserPrincipal;
@@ -93,11 +94,12 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Mints retrieved",
             content = @Content(mediaType = "application/json",
-            array = @ArraySchema(schema = @Schema(implementation = Mint.class))))
+            array = @ArraySchema(schema = @Schema(implementation = MintResponseDto.class))))
     })
     @GetMapping("/mints")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<Mint>> getAllMints(@AuthenticationPrincipal UserPrincipal currentUser){
-        return new ResponseEntity<>(mintService.getAllMintsForUser(currentUser.getId()), HttpStatus.OK);
+    public ResponseEntity<List<MintResponseDto>> getAllMints(@AuthenticationPrincipal UserPrincipal currentUser) {
+        List<MintResponseDto> mints = mintService.getAllMintsForUser(currentUser.getId());
+        return ResponseEntity.ok(mints);
     }
 }

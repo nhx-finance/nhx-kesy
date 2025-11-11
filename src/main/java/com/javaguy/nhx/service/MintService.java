@@ -6,6 +6,7 @@ import com.javaguy.nhx.exception.ResourceNotFoundException;
 import com.javaguy.nhx.exception.WalletMismatchException;
 import com.javaguy.nhx.model.dto.request.MintRequest;
 import com.javaguy.nhx.model.dto.response.MintResponse;
+import com.javaguy.nhx.model.dto.response.MintResponseDto;
 import com.javaguy.nhx.model.dto.response.MintStatusResponse;
 import com.javaguy.nhx.model.entity.Mint;
 import com.javaguy.nhx.model.entity.User;
@@ -25,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -96,9 +98,25 @@ public class MintService {
     }
 
     @Transactional(readOnly = true)
-    public List<Mint> getAllMintsForUser(UUID userId) {
+    public List<MintResponseDto> getAllMintsForUser(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return mintRepository.findByUser(user);
+        return mintRepository.findByUser(user).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private MintResponseDto convertToDto(Mint mint) {
+        return MintResponseDto.builder()
+                .id(mint.getId())
+                .amountKes(mint.getAmountKes())
+                .status(mint.getStatus())
+                .dateInitiated(mint.getDateInitiated())
+                .restrictionEndDate(mint.getRestrictionEndDate())
+                .paymentReference(mint.getPaymentReference())
+                .treasuryTransactionId(mint.getTreasuryTransactionId())
+                .createdAt(mint.getCreatedAt())
+                .walletAddress(mint.getWallet().getWalletAddress())
+                .build();
     }
 }
