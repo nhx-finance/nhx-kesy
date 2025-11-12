@@ -99,4 +99,4 @@ This ensures a predictable and user-friendly error experience across the API.
 
 ## Contact and Support
 
-For any questions or issues, please contact [Your Name/Team Email] or open an issue in the GitHub repository.
+For any questions or issues, please contact [email](mailto:dancanian25@gmail.com) or open an issue in the GitHub repository.
