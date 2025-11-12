@@ -34,7 +34,7 @@ To get this application running locally, follow these steps:
 
 1.  **Clone the Repository:**
     ```bash
-    git clone <repository-url>
+    git clone git@github.com:nhx-finance/nhx-kesy.git
     cd nhxkesy
     ```
 
