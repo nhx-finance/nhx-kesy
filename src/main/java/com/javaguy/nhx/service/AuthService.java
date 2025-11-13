@@ -163,6 +163,7 @@ public class AuthService {
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .expiresIn(accessTokenExpiry)
+                .role(user.getRole().name())
                 .build();
     }
 
@@ -203,6 +204,7 @@ public class AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .expiresIn(accessTokenExpiry)
+                .role(user.getRole().name())
                 .build();
     }
 
