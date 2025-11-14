@@ -51,7 +51,10 @@ public class Mint {
 
     private String treasuryTransactionId;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
+    @Column(name = "unsigned_transaction_id")
+    private String unsignedTransactionId;
 
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }
