@@ -1,5 +1,6 @@
 package com.javaguy.nhx.service;
 
+import com.javaguy.nhx.config.MultisigProperties;
 import com.javaguy.nhx.exception.InvalidMintAmountException;
 import com.javaguy.nhx.exception.KycNotVerifiedException;
 import com.javaguy.nhx.exception.ResourceNotFoundException;
@@ -13,11 +14,14 @@ import com.javaguy.nhx.model.entity.User;
 import com.javaguy.nhx.model.entity.Wallet;
 import com.javaguy.nhx.model.enums.KycStatus;
 import com.javaguy.nhx.model.enums.MintStatus;
+import com.javaguy.nhx.model.dto.request.UnsignedTransactionRequest;
+import com.javaguy.nhx.model.dto.response.UnsignedTransactionResponse;
 import com.javaguy.nhx.repository.MintRepository;
 import com.javaguy.nhx.repository.UserRepository;
 import com.javaguy.nhx.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +41,8 @@ public class MintService {
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
     private final NotificationService notificationService;
+    private final UnsignedTransactionService unsignedTransactionService;
+    private final MultisigProperties multisigProperties;
 
     private static final BigDecimal MIN_MINT_AMOUNT = new BigDecimal("1000000.00");
 
@@ -67,6 +73,18 @@ public class MintService {
                 .status(MintStatus.PENDING)
                 .dateInitiated(LocalDate.now())
                 .build();
+
+        UnsignedTransactionRequest unsignedTransactionRequest = UnsignedTransactionRequest.builder()
+                .payload("Mint request")
+                .description("Mint request for " + request.getAmountKes() + " KES for user " + user.getEmail())
+                .accountId(multisigProperties.getAccountId())
+                .keyList(multisigProperties.getKeyList())
+                .threshold(3)
+                .build();
+
+        UnsignedTransactionResponse unsignedTransactionResponse = unsignedTransactionService.createUnsignedTransaction(unsignedTransactionRequest);
+
+        mint.setUnsignedTransactionId(unsignedTransactionResponse.getTransactionId());
 
         mint = mintRepository.save(mint);
 
