@@ -41,3 +41,12 @@ app:
 admin:
   notification:
     email: ${ADMIN_NOTIFICATION_EMAIL:}
+
+multisig:
+  api:
+    url: ${MULTISIG_API_URL}
+  account-id: ${ACCOUNT_ID}
+  key-list:
+    - ${PUBLIC_KEY}
+    - ${PUBLIC_KEY2}
+    - ${PUBLIC_KEY3}
