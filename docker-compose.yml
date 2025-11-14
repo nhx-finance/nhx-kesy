@@ -18,23 +18,6 @@ services:
       timeout: 5s
       retries: 5
 
-  mongodb:
-    image: mongo:8.0.0
-    container_name: nhxserver-mongodb
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: nhxuser
-      MONGO_INITDB_ROOT_PASSWORD: nhxpass
-      MONGO_INITDB_DATABASE: nhxserver
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   mailhog:
     image: mailhog/mailhog:latest
     container_name: nhxserver-mailhog
