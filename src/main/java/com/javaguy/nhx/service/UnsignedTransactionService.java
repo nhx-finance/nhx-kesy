@@ -20,7 +20,7 @@ public class UnsignedTransactionService {
     private final RestClient restClient;
 
     public UnsignedTransactionResponse createUnsignedTransaction(UnsignedTransactionRequest request) {
-        String url = multisigApiUrl + "/v1/transactions";
+        String url = multisigApiUrl + "/api/transactions";
         log.info("Sending request to multisig API: {}", url);
         return restClient.post()
                 .uri(url)
