@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 @Service
@@ -21,13 +24,41 @@ public class UnsignedTransactionService {
 
     public UnsignedTransactionResponse createUnsignedTransaction(UnsignedTransactionRequest request) {
         String url = multisigApiUrl + "/api/transactions";
-        log.info("Sending request to multisig API: {}", url);
-        return restClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Origin", multisigApiUrl)
-                .body(request)
-                .retrieve()
-                .body(UnsignedTransactionResponse.class);
+
+        log.info("Preparing to send createUnsignedTransaction request to {}", url);
+        log.debug("Request payload: {}", request);
+
+        try {
+            UnsignedTransactionResponse response = restClient.post()
+                    .uri(url)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Origin", multisigApiUrl)
+                    .body(request)
+                    .retrieve()
+                    .body(UnsignedTransactionResponse.class);
+
+            log.info("Successfully received unsigned transaction response");
+            log.debug("Response payload: {}", response);
+
+            return response;
+
+        } catch (HttpClientErrorException e) {
+            log.error("Client error from multisig API (4xx) at {}: Status={}, Body={}",
+                    url, e.getStatusCode(), e.getResponseBodyAsString(), e);
+            throw new RuntimeException("Client error while calling multisig API", e);
+
+        } catch (HttpServerErrorException e) {
+            log.error("Server error from multisig API (5xx) at {}: Status={}, Body={}",
+                    url, e.getStatusCode(), e.getResponseBodyAsString(), e);
+            throw new RuntimeException("Server error while calling multisig API", e);
+
+        } catch (ResourceAccessException e) {
+            log.error("Network error while calling multisig API at {}: {}", url, e.getMessage(), e);
+            throw new RuntimeException("Network error while calling multisig API", e);
+
+        } catch (Exception e) {
+            log.error("Unexpected error while calling multisig API: {}", e.getMessage(), e);
+            throw new RuntimeException("Unexpected error while creating unsigned transaction", e);
+        }
     }
 }

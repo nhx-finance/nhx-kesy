@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -74,15 +75,21 @@ public class MintService {
                 .dateInitiated(LocalDate.now())
                 .build();
 
+        String startDate = LocalDateTime.now()
+                .atZone(ZoneId.of("UTC"))
+                .toInstant()
+                .toString();
+
         UnsignedTransactionRequest unsignedTransactionRequest = UnsignedTransactionRequest.builder()
                 .transaction_message(request.getTransaction_message())
                 .description("Mint request for " + request.getAmountKes() + " KES for user " + user.getEmail())
                 .hedera_account_id(multisigProperties.getAccountId())
                 .key_list(multisigProperties.getKeyList())
                 .threshold(3)
-                .start_date(LocalDateTime.now())
                 .network("testnet")
+                .start_date(startDate)
                 .build();
+
 
         UnsignedTransactionResponse unsignedTransactionResponse = unsignedTransactionService.createUnsignedTransaction(unsignedTransactionRequest);
 
@@ -94,7 +101,7 @@ public class MintService {
 
         return MintResponse.builder()
                 .requestId(mint.getId())
-                .transactionId(mint.getId())
+                .transactionId(UUID.fromString(unsignedTransactionResponse.getTransactionId()))
                 .build();
     }
 

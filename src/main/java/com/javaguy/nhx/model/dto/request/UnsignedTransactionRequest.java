@@ -19,5 +19,5 @@ public class UnsignedTransactionRequest {
     private List<String> key_list;
     private Integer threshold;
     private String network;
-    private LocalDateTime start_date;
+    private String start_date;
 }
