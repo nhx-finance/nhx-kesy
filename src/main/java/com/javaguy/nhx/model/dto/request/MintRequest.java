@@ -16,4 +16,7 @@ public class MintRequest {
 
     @NotNull(message = "Wallet ID is required")
     private UUID walletId;
+    
+    @NotNull(message = "Transaction message is required")
+    private String transaction_message;
 }
