@@ -1,4 +1,4 @@
-package com.javaguy.nhx.service;
+package com.javaguy.nhx.service.kyc;
 
 import com.javaguy.nhx.exception.InvalidDocumentException;
 import com.javaguy.nhx.exception.KycAlreadyVerifiedException;
@@ -12,6 +12,7 @@ import com.javaguy.nhx.model.entity.User;
 import com.javaguy.nhx.model.enums.KycStatus;
 import com.javaguy.nhx.repository.KycDocumentRepository;
 import com.javaguy.nhx.repository.UserRepository;
+import com.javaguy.nhx.service.email.NotificationService;
 import com.javaguy.nhx.service.storage.DocumentStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

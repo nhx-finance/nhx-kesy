@@ -1,4 +1,4 @@
-package com.javaguy.nhx.service;
+package com.javaguy.nhx.service.admin;
 
 import com.javaguy.nhx.exception.ResourceNotFoundException;
 import com.javaguy.nhx.model.dto.request.UpdateKycStatusRequest;
@@ -13,6 +13,7 @@ import com.javaguy.nhx.model.enums.MintStatus;
 import com.javaguy.nhx.repository.KycDocumentRepository;
 import com.javaguy.nhx.repository.MintRepository;
 import com.javaguy.nhx.repository.UserRepository;
+import com.javaguy.nhx.service.email.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

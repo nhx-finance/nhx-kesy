@@ -1,4 +1,4 @@
-package com.javaguy.nhx.service;
+package com.javaguy.nhx.service.email;
 
 import com.javaguy.nhx.model.entity.Mint;
 import com.javaguy.nhx.model.entity.User;

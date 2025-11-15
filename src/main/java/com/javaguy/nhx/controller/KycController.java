@@ -4,7 +4,7 @@ import com.javaguy.nhx.model.dto.request.KycSubmissionRequest;
 import com.javaguy.nhx.model.dto.response.KycStatusResponse;
 import com.javaguy.nhx.model.dto.response.KycSubmissionResponse;
 import com.javaguy.nhx.security.UserPrincipal;
-import com.javaguy.nhx.service.KycService;
+import com.javaguy.nhx.service.kyc.KycService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

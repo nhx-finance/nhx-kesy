@@ -4,7 +4,7 @@ import com.javaguy.nhx.model.dto.request.MintRequest;
 import com.javaguy.nhx.model.dto.response.MintResponse;
 import com.javaguy.nhx.model.dto.response.MintStatusResponse;
 import com.javaguy.nhx.security.UserPrincipal;
-import com.javaguy.nhx.service.MintService;
+import com.javaguy.nhx.service.mint.MintService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

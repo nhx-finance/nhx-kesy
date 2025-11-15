@@ -3,7 +3,7 @@ package com.javaguy.nhx.controller;
 import com.javaguy.nhx.model.dto.request.WalletRequest;
 import com.javaguy.nhx.model.entity.Wallet;
 import com.javaguy.nhx.security.UserPrincipal;
-import com.javaguy.nhx.service.UserService;
+import com.javaguy.nhx.service.auth.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

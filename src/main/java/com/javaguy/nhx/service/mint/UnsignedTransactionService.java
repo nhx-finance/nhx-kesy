@@ -1,4 +1,4 @@
-package com.javaguy.nhx.service;
+package com.javaguy.nhx.service.mint;
 
 import com.javaguy.nhx.model.dto.request.UnsignedTransactionRequest;
 import com.javaguy.nhx.model.dto.response.UnsignedTransactionResponse;

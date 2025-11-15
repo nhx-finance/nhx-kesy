@@ -1,9 +1,10 @@
-package com.javaguy.nhx.service;
+package com.javaguy.nhx.service.auth;
 
 import com.javaguy.nhx.exception.EmailServiceException;
 import com.javaguy.nhx.exception.InvalidOtpException;
 import com.javaguy.nhx.model.entity.Otp;
 import com.javaguy.nhx.repository.OtpRepository;
+import com.javaguy.nhx.service.email.EmailNotificationService;
 import com.javaguy.nhx.util.AppConstants;
 import com.javaguy.nhx.util.OtpGenerator;
 import lombok.RequiredArgsConstructor;

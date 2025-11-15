@@ -6,7 +6,7 @@ import com.javaguy.nhx.model.dto.response.KycSubmissionAdminResponse;
 import com.javaguy.nhx.model.dto.response.MintAdminResponse;
 import com.javaguy.nhx.model.enums.KycStatus;
 import com.javaguy.nhx.model.enums.MintStatus;
-import com.javaguy.nhx.service.AdminService;
+import com.javaguy.nhx.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.javaguy.nhx.service;
+package com.javaguy.nhx.service.mint;
 
 import com.javaguy.nhx.config.MultisigProperties;
 import com.javaguy.nhx.exception.InvalidMintAmountException;
@@ -19,9 +19,9 @@ import com.javaguy.nhx.model.dto.response.UnsignedTransactionResponse;
 import com.javaguy.nhx.repository.MintRepository;
 import com.javaguy.nhx.repository.UserRepository;
 import com.javaguy.nhx.repository.WalletRepository;
+import com.javaguy.nhx.service.email.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

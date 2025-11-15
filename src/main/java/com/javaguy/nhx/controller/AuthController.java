@@ -4,7 +4,7 @@ import com.javaguy.nhx.model.dto.request.LoginRequest;
 import com.javaguy.nhx.model.dto.request.SignupRequest;
 import com.javaguy.nhx.model.dto.request.VerifyOtpRequest;
 import com.javaguy.nhx.model.dto.response.AuthResponse;
-import com.javaguy.nhx.service.AuthService;
+import com.javaguy.nhx.service.auth.AuthService;
 import com.javaguy.nhx.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

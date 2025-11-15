@@ -1,4 +1,4 @@
-package com.javaguy.nhx.service;
+package com.javaguy.nhx.service.auth;
 
 import com.javaguy.nhx.exception.*;
 import com.javaguy.nhx.model.dto.request.LoginRequest;
