@@ -19,8 +19,6 @@ public class MintAdminResponse {
     private BigDecimal amountKes;
     private MintStatus status;
     private LocalDate dateInitiated;
-    private LocalDate restrictionEndDate;
-    private String paymentReference;
     private String treasuryTransactionId;
     private LocalDateTime createdAt;
 }

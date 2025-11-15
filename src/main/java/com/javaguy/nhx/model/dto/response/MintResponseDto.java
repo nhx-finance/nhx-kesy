@@ -20,8 +20,6 @@ public class MintResponseDto {
     private BigDecimal amountKes;
     private MintStatus status;
     private LocalDate dateInitiated;
-    private LocalDate restrictionEndDate;
-    private String paymentReference;
     private String treasuryTransactionId;
     private LocalDateTime createdAt;
     private String walletAddress;

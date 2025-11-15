@@ -106,8 +106,7 @@ public class AdminService {
                 .amountKes(mint.getAmountKes())
                 .status(mint.getStatus())
                 .dateInitiated(mint.getDateInitiated())
-                .restrictionEndDate(mint.getRestrictionEndDate())
-                .paymentReference(mint.getPaymentReference())
+                .treasuryTransactionId(mint.getTreasuryTransactionId())
                 .createdAt(mint.getCreatedAt())
                 .build());
     }

@@ -94,8 +94,8 @@ public class MintService {
         UnsignedTransactionResponse unsignedTransactionResponse = unsignedTransactionService.createUnsignedTransaction(unsignedTransactionRequest);
 
         mint.setTreasuryTransactionId(unsignedTransactionResponse.getTransactionId());
-
         mint = mintRepository.save(mint);
+        log.info("treasury txn id: {}", mint.getTreasuryTransactionId());
 
         notificationService.notifyUserOnMintStatusChange(user, mint, "Your mint request has been received and is pending.");
 
@@ -139,8 +139,6 @@ public class MintService {
                 .amountKes(mint.getAmountKes())
                 .status(mint.getStatus())
                 .dateInitiated(mint.getDateInitiated())
-                .restrictionEndDate(mint.getRestrictionEndDate())
-                .paymentReference(mint.getPaymentReference())
                 .treasuryTransactionId(mint.getTreasuryTransactionId())
                 .createdAt(mint.getCreatedAt())
                 .walletAddress(mint.getWallet().getWalletAddress())
