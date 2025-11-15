@@ -75,11 +75,13 @@ public class MintService {
                 .build();
 
         UnsignedTransactionRequest unsignedTransactionRequest = UnsignedTransactionRequest.builder()
-                .payload("Mint request")
+                .transaction_message(request.getTransaction_message())
                 .description("Mint request for " + request.getAmountKes() + " KES for user " + user.getEmail())
-                .accountId(multisigProperties.getAccountId())
-                .keyList(multisigProperties.getKeyList())
+                .hedera_account_id(multisigProperties.getAccountId())
+                .key_list(multisigProperties.getKeyList())
                 .threshold(3)
+                .start_date(LocalDateTime.now())
+                .network("testnet")
                 .build();
 
         UnsignedTransactionResponse unsignedTransactionResponse = unsignedTransactionService.createUnsignedTransaction(unsignedTransactionRequest);
