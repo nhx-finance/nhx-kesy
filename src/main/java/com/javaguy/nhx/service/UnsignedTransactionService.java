@@ -25,6 +25,7 @@ public class UnsignedTransactionService {
         return restClient.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Origin", multisigApiUrl)
                 .body(request)
                 .retrieve()
                 .body(UnsignedTransactionResponse.class);
