@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -12,9 +13,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UnsignedTransactionRequest {
-    private String payload;
+    private String transaction_message;
     private String description;
-    private String accountId;
-    private List<String> keyList;
+    private String hedera_account_id;
+    private List<String> key_list;
     private Integer threshold;
+    private String network;
+    private LocalDateTime start_date;
 }
