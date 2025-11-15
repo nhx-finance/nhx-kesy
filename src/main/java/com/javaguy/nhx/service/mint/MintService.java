@@ -93,7 +93,7 @@ public class MintService {
 
         UnsignedTransactionResponse unsignedTransactionResponse = unsignedTransactionService.createUnsignedTransaction(unsignedTransactionRequest);
 
-        mint.setUnsignedTransactionId(unsignedTransactionResponse.getTransactionId());
+        mint.setTreasuryTransactionId(unsignedTransactionResponse.getTransactionId());
 
         mint = mintRepository.save(mint);
 
