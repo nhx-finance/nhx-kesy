@@ -45,7 +45,7 @@ public class MintService {
     private final UnsignedTransactionService unsignedTransactionService;
     private final MultisigProperties multisigProperties;
 
-    private static final BigDecimal MIN_MINT_AMOUNT = new BigDecimal("1000000.00");
+    private static final BigDecimal MIN_MINT_AMOUNT = new BigDecimal("100.00");
 
     @Transactional
     public MintResponse requestMint(UUID userId, MintRequest request) {
