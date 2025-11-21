@@ -1,9 +1,9 @@
 package com.javaguy.nhx.service.kyc;
 
-import com.javaguy.nhx.exception.InvalidDocumentException;
-import com.javaguy.nhx.exception.KycAlreadyVerifiedException;
-import com.javaguy.nhx.exception.ResourceNotFoundException;
-import com.javaguy.nhx.exception.StorageException;
+import com.javaguy.nhx.exception.custom.BadRequestException;
+import com.javaguy.nhx.exception.custom.ConflictException;
+import com.javaguy.nhx.exception.custom.InternalServerException;
+import com.javaguy.nhx.exception.custom.ResourceNotFoundException;
 import com.javaguy.nhx.model.dto.request.KycSubmissionRequest;
 import com.javaguy.nhx.model.dto.response.KycStatusResponse;
 import com.javaguy.nhx.model.dto.response.KycSubmissionResponse;
@@ -64,16 +64,16 @@ public class KycService {
 
         // Validate user can submit KYC
         if (user.getKycStatus() == KycStatus.VERIFIED) {
-            throw new KycAlreadyVerifiedException("KYC already verified");
+            throw new ConflictException("KYC already verified");
         }
 
         // Validate required documents
         if (documentFront == null || documentFront.isEmpty()) {
-            throw new InvalidDocumentException("Document front is required");
+            throw new BadRequestException("Document front is required");
         }
 
         if (documentBack == null || documentBack.isEmpty()) {
-            throw new InvalidDocumentException("Document back is required");
+            throw new BadRequestException("Document back is required");
         }
 
         validateDocumentType(documentFront);
@@ -109,9 +109,9 @@ public class KycService {
                     .message("KYC documents submitted successfully. Your submission is under review.")
                     .build();
 
-        } catch (StorageException e) {
+        } catch (Exception e) {
             log.error("Failed to store KYC documents for user {}: {}", userId, e.getMessage());
-            throw new StorageException("Failed to upload KYC documents. Please try again.", e);
+            throw new InternalServerException("Failed to upload KYC documents. Please try again.", e);
         }
     }
 
@@ -141,7 +141,7 @@ public class KycService {
         String filename = file.getOriginalFilename();
 
         if (contentType == null || filename == null) {
-            throw new InvalidDocumentException("Invalid file");
+            throw new BadRequestException("Invalid file");
         }
 
         boolean isValidType = contentType.equals("image/jpeg") ||
@@ -155,14 +155,14 @@ public class KycService {
                 filename.toLowerCase().endsWith(".pdf");
 
         if (!isValidType || !hasValidExtension) {
-            throw new InvalidDocumentException(
+            throw new BadRequestException(
                     "Invalid document type. Accepted formats: JPG, JPEG, PNG, PDF"
             );
         }
 
         long maxSize = 10 * 1024 * 1024;
         if (file.getSize() > maxSize) {
-            throw new InvalidDocumentException(
+            throw new BadRequestException(
                     "File size exceeds maximum allowed size of 10MB"
             );
         }

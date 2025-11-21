@@ -1,6 +1,6 @@
 package com.javaguy.nhx.service.email;
 
-import com.javaguy.nhx.exception.EmailServiceException;
+import com.javaguy.nhx.exception.custom.EmailServiceException;
 import com.javaguy.nhx.model.entity.Mint;
 import com.javaguy.nhx.model.entity.User;
 import com.javaguy.nhx.model.enums.KycStatus;

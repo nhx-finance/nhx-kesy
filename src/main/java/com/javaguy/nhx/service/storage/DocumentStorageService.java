@@ -1,6 +1,6 @@
 package com.javaguy.nhx.service.storage;
 
-import com.javaguy.nhx.exception.StorageException;
+import com.javaguy.nhx.exception.custom.StorageException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface DocumentStorageService {

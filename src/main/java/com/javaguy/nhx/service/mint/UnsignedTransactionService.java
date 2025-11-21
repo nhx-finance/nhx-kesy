@@ -11,6 +11,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import com.javaguy.nhx.exception.custom.BadRequestException;
+import com.javaguy.nhx.exception.custom.InternalServerException;
 
 @Service
 @RequiredArgsConstructor
@@ -45,20 +47,20 @@ public class UnsignedTransactionService {
         } catch (HttpClientErrorException e) {
             log.error("Client error from multisig API (4xx) at {}: Status={}, Body={}",
                     url, e.getStatusCode(), e.getResponseBodyAsString(), e);
-            throw new RuntimeException("Client error while calling multisig API", e);
+            throw new BadRequestException("Client error while calling multisig API: " + e.getMessage(), e);
 
         } catch (HttpServerErrorException e) {
             log.error("Server error from multisig API (5xx) at {}: Status={}, Body={}",
                     url, e.getStatusCode(), e.getResponseBodyAsString(), e);
-            throw new RuntimeException("Server error while calling multisig API", e);
+            throw new InternalServerException("Server error while calling multisig API", e);
 
         } catch (ResourceAccessException e) {
             log.error("Network error while calling multisig API at {}: {}", url, e.getMessage(), e);
-            throw new RuntimeException("Network error while calling multisig API", e);
+            throw new InternalServerException("Network error while calling multisig API, please try again", e);
 
         } catch (Exception e) {
             log.error("Unexpected error while calling multisig API: {}", e.getMessage(), e);
-            throw new RuntimeException("Unexpected error while creating unsigned transaction", e);
+            throw new InternalServerException("Unexpected error while creating unsigned transaction, please try again", e);
         }
     }
 }

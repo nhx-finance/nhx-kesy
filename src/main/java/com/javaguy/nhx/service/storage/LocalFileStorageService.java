@@ -1,6 +1,6 @@
 package com.javaguy.nhx.service.storage;
 
-import com.javaguy.nhx.exception.StorageException;
+import com.javaguy.nhx.exception.custom.StorageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,9 +1,9 @@
 package com.javaguy.nhx.service.auth;
 
-import com.javaguy.nhx.exception.InvalidAgeException;
-import com.javaguy.nhx.exception.KycNotVerifiedException;
-import com.javaguy.nhx.exception.ResourceNotFoundException;
-import com.javaguy.nhx.exception.WalletAlreadyWhitelistedException;
+import com.javaguy.nhx.exception.custom.ConflictException;
+import com.javaguy.nhx.exception.custom.KycNotVerifiedException;
+import com.javaguy.nhx.exception.custom.ResourceNotFoundException;
+import com.javaguy.nhx.exception.custom.ValidationException;
 import com.javaguy.nhx.model.dto.request.DetailsRequest;
 import com.javaguy.nhx.model.dto.request.UserProfileRequest;
 import com.javaguy.nhx.model.dto.request.WalletRequest;
@@ -58,7 +58,7 @@ public class UserService {
         }
 
         if (walletRepository.findByUserAndWalletAddress(user, request.walletAddress()).isPresent()) {
-            throw new WalletAlreadyWhitelistedException("Wallet address already whitelisted for this user.");
+            throw new ConflictException("Wallet address already whitelisted for this user.");
         }
 
         Wallet wallet = Wallet.builder()
@@ -108,11 +108,11 @@ public class UserService {
 
     private void validateAge(LocalDate dob) {
         if (dob == null) {
-            throw new InvalidAgeException("dateOfBirth is required");
+            throw new ValidationException("dateOfBirth is required");
         }
         int years = Period.between(dob, LocalDate.now()).getYears();
         if (years < 18) {
-            throw new InvalidAgeException("User must be at least 18 years old");
+            throw new ValidationException("User must be at least 18 years old");
         }
     }
 

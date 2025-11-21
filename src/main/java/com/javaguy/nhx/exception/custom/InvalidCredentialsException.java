@@ -1,4 +1,4 @@
-package com.javaguy.nhx.exception;
+package com.javaguy.nhx.exception.custom;
 
 import org.springframework.http.HttpStatus;
 
