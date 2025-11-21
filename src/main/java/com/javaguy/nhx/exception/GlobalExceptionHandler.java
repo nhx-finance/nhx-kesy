@@ -28,6 +28,7 @@ import com.javaguy.nhx.exception.custom.InternalServerException;
 import com.javaguy.nhx.exception.custom.KycNotVerifiedException;
 import com.javaguy.nhx.exception.custom.AccountDisabledException;
 import com.javaguy.nhx.exception.custom.BaseException;
+import com.javaguy.nhx.exception.custom.ServiceUnavailableException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -102,6 +103,13 @@ public class GlobalExceptionHandler {
         log.warn("Base Exception: {} - {}", ex.getStatus(), ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(ex.getStatus(), ex.getStatus().getReasonPhrase(), ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleServiceUnavailableException(ServiceUnavailableException ex, HttpServletRequest request) {
+        log.error("Service Unavailable: {}", ex.getMessage(), ex);
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service Unavailable", ex.getMessage(), request.getRequestURI());
+        return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     // Spring & Jakarta Exceptions

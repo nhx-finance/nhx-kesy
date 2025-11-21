@@ -13,6 +13,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import com.javaguy.nhx.exception.custom.BadRequestException;
 import com.javaguy.nhx.exception.custom.InternalServerException;
+import com.javaguy.nhx.exception.custom.ServiceUnavailableException;
 
 @Service
 @RequiredArgsConstructor
@@ -56,11 +57,11 @@ public class UnsignedTransactionService {
 
         } catch (ResourceAccessException e) {
             log.error("Network error while calling multisig API at {}: {}", url, e.getMessage(), e);
-            throw new InternalServerException("Network error while calling multisig API, please try again", e);
+            throw new ServiceUnavailableException("Cannot reach multisig service. Please try again later.", e);
 
         } catch (Exception e) {
             log.error("Unexpected error while calling multisig API: {}", e.getMessage(), e);
-            throw new InternalServerException("Unexpected error while creating unsigned transaction, please try again", e);
+            throw new InternalServerException("An unexpected error occurred with the multisig service. Please try again later.", e);
         }
     }
 }
