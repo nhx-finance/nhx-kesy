@@ -1,7 +1,7 @@
 package com.javaguy.nhx.service.auth;
 
-import com.javaguy.nhx.exception.EmailServiceException;
-import com.javaguy.nhx.exception.InvalidOtpException;
+import com.javaguy.nhx.exception.custom.InternalServerException;
+import com.javaguy.nhx.exception.custom.UnauthorizedException;
 import com.javaguy.nhx.model.entity.Otp;
 import com.javaguy.nhx.repository.OtpRepository;
 import com.javaguy.nhx.service.email.EmailNotificationService;
@@ -38,9 +38,9 @@ public class OtpService {
         try {
             emailNotificationService.sendOtpEmail(email, otpCode);
             log.info("✅ OTP sent to {}", email);
-        } catch (EmailServiceException e) {
+        } catch (Exception e) {
             log.error("❌ Failed to send OTP email to {}", email, e);
-            throw new EmailServiceException("Failed to send OTP email", e);
+            throw new InternalServerException("Failed to send OTP email", e);
         }
     }
 
@@ -48,7 +48,7 @@ public class OtpService {
     public void verifyOtp(String email, String otpCode) {
         Otp otp = otpRepository.findByEmailAndOtpCodeAndUsedFalseAndExpiryTimeAfter(
                         email, otpCode, LocalDateTime.now())
-                .orElseThrow(() -> new InvalidOtpException("Invalid or expired OTP"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid or expired OTP"));
 
         otp.setUsed(true);
         otpRepository.save(otp);
