@@ -1,6 +1,11 @@
 package com.javaguy.nhx.service.auth;
 
-import com.javaguy.nhx.exception.*;
+import com.javaguy.nhx.exception.custom.AccountDisabledException;
+import com.javaguy.nhx.exception.custom.ConflictException;
+import com.javaguy.nhx.exception.custom.EmailNotVerifiedException;
+import com.javaguy.nhx.exception.custom.InternalServerException;
+import com.javaguy.nhx.exception.custom.ResourceNotFoundException;
+import com.javaguy.nhx.exception.custom.UnauthorizedException;
 import com.javaguy.nhx.model.dto.request.LoginRequest;
 import com.javaguy.nhx.model.dto.request.SignupRequest;
 import com.javaguy.nhx.model.dto.request.VerifyOtpRequest;
@@ -46,7 +51,7 @@ public class AuthService {
     @Transactional
     public void signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new EmailAlreadyExistsException("Email already in use: " + request.email());
+            throw new ConflictException("Email already in use: " + request.email());
         }
 
         User user = User.builder()
@@ -62,7 +67,7 @@ public class AuthService {
             log.info("User registered successfully: {}", request.email());
         } catch (Exception e) {
             log.error("Failed to send OTP to {}", request.email(), e);
-            throw new OtpDeliveryException("Failed to send verification email");
+            throw new InternalServerException("Failed to send verification email");
         }
     }
 
@@ -71,7 +76,7 @@ public class AuthService {
         otpService.verifyOtp(request.email(), request.otp());
 
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.email()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + request.email()));
 
         if (user.isEmailVerified()) {
             log.warn("Attempt to verify already verified email: {}", request.email());
@@ -100,12 +105,12 @@ public class AuthService {
             );
         } catch (BadCredentialsException e) {
             log.warn("Failed login attempt for: {}", request.email());
-            throw new InvalidCredentialsException("Invalid email or password");
+            throw new UnauthorizedException("Invalid email or password");
         }
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         User user = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!user.isEmailVerified()) {
             log.warn("Login attempt with unverified email: {}", request.email());
@@ -128,12 +133,12 @@ public class AuthService {
     public AuthResponse refreshToken(String refreshTokenString) {
         RefreshToken existingToken = refreshTokenRepository
                 .findByToken(refreshTokenString)
-                .orElseThrow(() -> new InvalidTokenException("Invalid refresh token"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
 
         if (existingToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             refreshTokenRepository.delete(existingToken);
             log.warn("Expired refresh token used: {}", existingToken.getUser().getEmail());
-            throw new TokenExpiredException("Refresh token expired. Please login again");
+            throw new UnauthorizedException("Refresh token expired. Please login again");
         }
 
         User user = existingToken.getUser();
@@ -179,7 +184,7 @@ public class AuthService {
     @Transactional
     public void logoutAllDevices(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         revokeAllUserTokens(user);
         log.info("Logged out user {} from all devices", user.getEmail());
