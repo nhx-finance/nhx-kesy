@@ -1,6 +1,6 @@
 package com.javaguy.nhx.service.admin;
 
-import com.javaguy.nhx.exception.ResourceNotFoundException;
+import com.javaguy.nhx.exception.custom.ResourceNotFoundException;
 import com.javaguy.nhx.model.dto.request.UpdateKycStatusRequest;
 import com.javaguy.nhx.model.dto.request.UpdateMintStatusRequest;
 import com.javaguy.nhx.model.dto.response.KycSubmissionAdminResponse;
