@@ -1,10 +1,10 @@
 package com.javaguy.nhx.service.mint;
 
 import com.javaguy.nhx.config.MultisigProperties;
-import com.javaguy.nhx.exception.InvalidMintAmountException;
-import com.javaguy.nhx.exception.KycNotVerifiedException;
-import com.javaguy.nhx.exception.ResourceNotFoundException;
-import com.javaguy.nhx.exception.WalletMismatchException;
+import com.javaguy.nhx.exception.custom.InvalidMintAmountException;
+import com.javaguy.nhx.exception.custom.KycNotVerifiedException;
+import com.javaguy.nhx.exception.custom.ResourceNotFoundException;
+import com.javaguy.nhx.exception.custom.WalletMismatchException;
 import com.javaguy.nhx.model.dto.request.MintRequest;
 import com.javaguy.nhx.model.dto.response.MintResponse;
 import com.javaguy.nhx.model.dto.response.MintResponseDto;
