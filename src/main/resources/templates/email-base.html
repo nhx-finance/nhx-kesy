@@ -57,7 +57,7 @@
             <th:block th:replace="${content}" />
         </div>
         <div class="footer">
-            <p>If you have any questions, please contact <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}"></a>.</p>
+            <p>If you have any questions, please contact [[${supportEmail}]].</p>
             <p>&copy; <span th:text="${currentYear}"></span> <span th:text="${appName}"></span>. All rights reserved.</p>
         </div>
     </div>
