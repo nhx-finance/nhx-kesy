@@ -3,13 +3,36 @@
       th:replace="~{email-base :: layout(~{::content})}">
 <div th:fragment="content">
     <p>Dear Admin,</p>
+
     <p>A new KYC submission has been received and is awaiting your review.</p>
-    <ul>
-        <li><strong>User ID:</strong> <span th:text="${userId}"></span></li>
-        <li><strong>User Email:</strong> <span th:text="${userEmail}"></span></li>
-        <li><strong>User Name:</strong> <span th:text="${userName}"></span></li>
-        <li><strong>Submitted At:</strong> <span th:text="${submittedAt}"></span></li>
-    </ul>
+
+    <div style="padding: 20px; background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%); border-radius: 8px; margin: 20px 0; border-left: 4px solid #666;">
+        <p style="margin: 0 0 15px 0; color: #333; font-weight: 600;">📋 Submission Details</p>
+
+        <table style="width: 100%; font-size: 13px; color: #555;">
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 10px 0; font-weight: 600; width: 30%;">User ID:</td>
+                <td style="padding: 10px 0;" th:text="${userId}"></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 10px 0; font-weight: 600;">User Name:</td>
+                <td style="padding: 10px 0;" th:text="${userName}"></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 10px 0; font-weight: 600;">Email:</td>
+                <td style="padding: 10px 0;" th:text="${userEmail}"></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 0; font-weight: 600;">Submitted:</td>
+                <td style="padding: 10px 0;" th:text="${submittedAt}"></td>
+            </tr>
+        </table>
+    </div>
+
     <p>Please log in to the admin portal to review the documents and update the KYC status.</p>
+
+    <p style="font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">
+        This is an automated notification from the KYC review system.
+    </p>
 </div>
 </html>

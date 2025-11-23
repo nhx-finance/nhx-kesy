@@ -2,12 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{email-base :: layout(~{::content})}">
 <div th:fragment="content">
-    <p>Dear <span th:text="${firstName}"></span>,</p>
-    <p>Fantastic news! Your mint request (ID: <span th:text="${requestId}"></span>) for **<span th:text="${amount}"></span> KES** has been successfully **transferred** to your wallet.</p>
-    <p>You can now see your KESY tokens in your wallet.</p>
-    <p th:if="${transactionId}">
-        <strong>Treasury Transaction ID:</strong> <span th:text="${transactionId}"></span>
+    <p>Dear <strong th:text="${firstName}"></strong>,</p>
+
+    <p>Fantastic news! Your mint request has been successfully completed.</p>
+
+    <div style="padding: 20px; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+        <p style="margin: 0; color: #155724; font-weight: 600; font-size: 16px;">✓ Tokens Transferred</p>
+        <p style="margin-top: 10px; color: #155724; font-size: 14px;">
+            <strong>Amount:</strong> <span th:text="${amount}"></span> KES<br/>
+            <strong>Request ID:</strong> <span th:text="${requestId}"></span>
+        </p>
+    </div>
+
+    <p>Your KESY tokens have been successfully transferred to your wallet and are now available for use.</p>
+
+    <div th:if="${transactionId}" style="padding: 15px; background-color: #f0f8ff; border-radius: 6px; border-left: 4px solid #0056b3; margin: 20px 0;">
+        <p style="margin: 0; color: #0056b3; font-weight: 600; font-size: 13px;">Treasury Transaction ID</p>
+        <p style="margin-top: 8px; color: #0056b3; font-family: 'Courier New', monospace; font-size: 12px;" th:text="${transactionId}"></p>
+    </div>
+
+    <p style="font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">
+        If you have any questions, feel free to reach out to our support team.
     </p>
-    <p>If you have any questions, feel free to reach out to our support team.</p>
 </div>
 </html>

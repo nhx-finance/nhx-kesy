@@ -2,12 +2,28 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{email-base :: layout(~{::content})}">
 <div th:fragment="content">
-    <p>Dear <span th:text="${firstName}"></span>,</p>
-    <p>We regret to inform you that your recent KYC submission has been **rejected**.</p>
-    <p th:if="${notes}">
-        <strong>Reason for rejection:</strong> <span th:text="${notes}"></span>
+    <p>Dear <strong th:text="${firstName}"></strong>,</p>
+
+    <p>We regret to inform you that your recent KYC submission has been rejected.</p>
+
+    <div th:if="${notes}" style="padding: 20px; background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc3545;">
+        <p style="margin: 0; color: #721c24; font-weight: 600; font-size: 14px;">⚠️ Reason for Rejection</p>
+        <p style="margin-top: 10px; color: #721c24; font-size: 13px;" th:text="${notes}"></p>
+    </div>
+
+    <div style="padding: 15px; background-color: #f0f0f0; border-radius: 6px; margin: 20px 0;">
+        <p style="margin: 0; color: #333; font-weight: 600; font-size: 13px;">What's Next?</p>
+        <ul style="margin-top: 10px; margin-bottom: 0; padding-left: 20px; color: #555; font-size: 13px;">
+            <li>Review the rejection reason above</li>
+            <li>Gather the required documents</li>
+            <li>Resubmit your KYC with corrections</li>
+        </ul>
+    </div>
+
+    <p>Log in to your dashboard to resubmit your KYC with the necessary corrections.</p>
+
+    <p style="font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">
+        If you believe this is an error or have any questions, please contact our support team.
     </p>
-    <p>Please review the details on your dashboard and resubmit your KYC documents with the necessary corrections.</p>
-    <p>If you believe this is an error or have any questions, please contact our support team.</p>
 </div>
 </html>

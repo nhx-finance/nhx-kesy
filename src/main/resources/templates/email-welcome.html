@@ -2,13 +2,20 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{email-base :: layout(~{::content})}">
 <div th:fragment="content">
-    <p>Dear <span th:text="${firstName}"></span>,</p>
-    <p>Welcome to <span th:text="${appName}"></span>! We're excited to have you on board.</p>
-    <p>You can now explore our platform and start your journey.</p>
-    <p style="text-align: center;">
-        <a th:href="${dashboardUrl}" class="button">Go to Dashboard</a>
+    <p>Dear <strong th:text="${firstName}"></strong>,</p>
+
+    <p>Welcome to <strong th:text="${appName}"></strong>! We're excited to have you on board.</p>
+
+    <div style="padding: 20px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 8px; margin: 20px 0; border-left: 4px solid #0056b3;">
+        <p style="margin: 0; color: #0056b3; font-weight: 600; font-size: 16px;">🎉 You're all set!</p>
+        <p style="margin-top: 8px; color: #0056b3;">You can now explore our platform and start your journey with us.</p>
+    </div>
+
+    <p>Log in to your dashboard to explore the platform and access all available features.</p>
+
+    <p style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee; font-size: 13px; color: #666;">
+        If you have any questions, feel free to reach out to our support team.<br/><br/>
+        <strong>Best regards,<br/>The <span th:text="${appName}"></span> Team</strong>
     </p>
-    <p>If you have any questions, feel free to reach out to our support team.</p>
-    <p>Best regards,<br/>The <span th:text="${appName}"></span> Team</p>
 </div>
 </html>
