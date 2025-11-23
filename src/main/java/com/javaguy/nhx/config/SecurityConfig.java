@@ -84,7 +84,8 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of(
                 "https://nhx-frontend.vercel.app",
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "https://devnhx-finance.vercel.app"
         ));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
