@@ -40,11 +40,11 @@ public class AzureBlobStorageService implements DocumentStorageService {
                     .setContentType(contentType)
                     .setContentDisposition("inline"));
 
-            log.info("✅ Uploaded file to Azure Blob Storage: {}", blobClient.getBlobUrl());
+            log.info("Uploaded file to Azure Blob Storage: {}", blobClient.getBlobUrl());
             return blobClient.getBlobUrl();
 
         } catch (Exception e) {
-            log.error("❌ Failed to upload file to Azure Blob Storage: {}", e.getMessage());
+            log.error("Failed to upload file to Azure Blob Storage: {}", e.getMessage());
             throw new StorageException("Failed to upload file to Azure Blob Storage", e);
         }
     }
@@ -55,7 +55,7 @@ public class AzureBlobStorageService implements DocumentStorageService {
 
         if (blobClient.exists()) {
             blobClient.delete();
-            log.info("🗑️ Deleted blob: {}", blobName);
+            log.info("Deleted blob: {}", blobName);
         } else {
             log.warn("Blob not found for deletion: {}", blobName);
         }
