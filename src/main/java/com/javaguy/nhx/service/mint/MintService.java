@@ -86,7 +86,7 @@ public class MintService {
                 .hedera_account_id(multisigProperties.getAccountId())
                 .key_list(multisigProperties.getKeyList())
                 .threshold(3)
-                .network("testnet")
+                .network(multisigProperties.getNetwork())
                 .start_date(startDate)
                 .build();
 
