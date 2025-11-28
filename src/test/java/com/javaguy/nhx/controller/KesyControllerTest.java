@@ -10,7 +10,7 @@ import com.javaguy.nhx.model.enums.MintStatus;
 import com.javaguy.nhx.security.CustomUserDetailsService;
 import com.javaguy.nhx.security.JwtTokenProvider;
 import com.javaguy.nhx.security.WithUserPrincipal;
-import com.javaguy.nhx.service.mint.MintService;
+import com.javaguy.nhx.service.mint.MintRequestService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ class KesyControllerTest {
         private MockMvc mockMvc;
 
         @MockitoBean
-        private MintService mintService;
+        private MintRequestService mintRequestService;
         @MockitoBean
         private JwtTokenProvider jwtTokenProvider;
         @MockitoBean
@@ -74,7 +74,7 @@ class KesyControllerTest {
         @Test
         @WithUserPrincipal(username = "test@example.com", roles = "USER")
         void requestMint_AuthenticatedUser_ReturnsCreated() throws Exception {
-                when(mintService.requestMint(any(UUID.class), any(MintRequest.class)))
+                when(mintRequestService.requestMint(any(UUID.class), any(MintRequest.class)))
                                 .thenReturn(mintResponse);
 
                 mockMvc.perform(post("/api/kesy/mint")
@@ -100,7 +100,7 @@ class KesyControllerTest {
         @Test
         @WithUserPrincipal(username = "test@example.com", roles = "USER")
         void requestMint_KycNotVerified_ReturnsBadRequest() throws Exception {
-                when(mintService.requestMint(any(UUID.class), any(MintRequest.class)))
+                when(mintRequestService.requestMint(any(UUID.class), any(MintRequest.class)))
                                 .thenThrow(new KycNotVerifiedException("KYC not verified"));
 
                 mockMvc.perform(post("/api/kesy/mint")
@@ -113,7 +113,7 @@ class KesyControllerTest {
         @Test
         @WithUserPrincipal(username = "test@example.com", roles = "USER")
         void requestMint_ResourceNotFound_ReturnsNotFound() throws Exception {
-                when(mintService.requestMint(any(UUID.class), any(MintRequest.class)))
+                when(mintRequestService.requestMint(any(UUID.class), any(MintRequest.class)))
                                 .thenThrow(new ResourceNotFoundException("Wallet not found"));
 
                 mockMvc.perform(post("/api/kesy/mint")
@@ -136,7 +136,7 @@ class KesyControllerTest {
         @Test
         @WithUserPrincipal(username = "test@example.com", roles = "USER")
         void getMintStatus_AuthenticatedUser_ReturnsOk() throws Exception {
-                when(mintService.getMintStatus(any(UUID.class), eq(requestId)))
+                when(mintRequestService.getMintStatus(any(UUID.class), eq(requestId)))
                                 .thenReturn(mintStatusResponse);
 
                 mockMvc.perform(get("/api/kesy/mint/{requestId}", requestId))
@@ -148,7 +148,7 @@ class KesyControllerTest {
         @Test
         @WithUserPrincipal(username = "test@example.com", roles = "USER")
         void getMintStatus_ResourceNotFound_ReturnsNotFound() throws Exception {
-                when(mintService.getMintStatus(any(UUID.class), eq(requestId)))
+                when(mintRequestService.getMintStatus(any(UUID.class), eq(requestId)))
                                 .thenThrow(new ResourceNotFoundException("Mint request not found"));
 
                 mockMvc.perform(get("/api/kesy/mint/{requestId}", requestId))

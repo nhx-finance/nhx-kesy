@@ -24,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -41,7 +40,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class MintServiceTest {
+class MintRequestServiceTest {
 
     @Mock
     private MintRepository mintRepository;
@@ -57,7 +56,7 @@ class MintServiceTest {
     private MultisigProperties multisigProperties;
 
     @InjectMocks
-    private MintService mintService;
+    private MintRequestService mintRequestService;
 
     private UUID userId;
     private User user;
@@ -116,7 +115,7 @@ class MintServiceTest {
         doNothing().when(notificationService).notifyUserOnMintStatusChange(any(User.class), any(Mint.class),
                 anyString());
 
-        var response = mintService.requestMint(userId, mintRequest);
+        var response = mintRequestService.requestMint(userId, mintRequest);
 
         assertNotNull(response);
         assertEquals(mintId, response.getRequestId());
@@ -133,7 +132,7 @@ class MintServiceTest {
     void requestMint_UserNotFound_ThrowsResourceNotFoundException() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> mintService.requestMint(userId, mintRequest));
+        assertThrows(ResourceNotFoundException.class, () -> mintRequestService.requestMint(userId, mintRequest));
 
         verify(userRepository, times(1)).findById(userId);
         verify(walletRepository, never()).findById(any(UUID.class));
@@ -144,7 +143,7 @@ class MintServiceTest {
         user.setKycStatus(KycStatus.PENDING);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        assertThrows(KycNotVerifiedException.class, () -> mintService.requestMint(userId, mintRequest));
+        assertThrows(KycNotVerifiedException.class, () -> mintRequestService.requestMint(userId, mintRequest));
 
         verify(userRepository, times(1)).findById(userId);
         verify(walletRepository, never()).findById(any(UUID.class));
@@ -158,7 +157,7 @@ class MintServiceTest {
         mintRequest.setTransaction_message("Test message");
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        assertThrows(InvalidMintAmountException.class, () -> mintService.requestMint(userId, mintRequest));
+        assertThrows(InvalidMintAmountException.class, () -> mintRequestService.requestMint(userId, mintRequest));
 
         verify(userRepository, times(1)).findById(userId);
         verify(walletRepository, never()).findById(any(UUID.class));
@@ -169,7 +168,7 @@ class MintServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(walletRepository.findById(walletId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> mintService.requestMint(userId, mintRequest));
+        assertThrows(ResourceNotFoundException.class, () -> mintRequestService.requestMint(userId, mintRequest));
 
         verify(userRepository, times(1)).findById(userId);
         verify(walletRepository, times(1)).findById(walletId);
@@ -185,7 +184,7 @@ class MintServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(walletRepository.findById(walletId)).thenReturn(Optional.of(otherUserWallet));
 
-        assertThrows(WalletMismatchException.class, () -> mintService.requestMint(userId, mintRequest));
+        assertThrows(WalletMismatchException.class, () -> mintRequestService.requestMint(userId, mintRequest));
 
         verify(userRepository, times(1)).findById(userId);
         verify(walletRepository, times(1)).findById(walletId);
@@ -195,7 +194,7 @@ class MintServiceTest {
     void getMintStatus_Success() {
         when(mintRepository.findByUserIdAndId(userId, mintId)).thenReturn(Optional.of(mint));
 
-        var response = mintService.getMintStatus(userId, mintId);
+        var response = mintRequestService.getMintStatus(userId, mintId);
 
         assertNotNull(response);
         assertEquals(mintId, response.getRequestId());
@@ -209,7 +208,7 @@ class MintServiceTest {
         mint.setStatus(MintStatus.TRANSFERRED);
         when(mintRepository.findByUserIdAndId(userId, mintId)).thenReturn(Optional.of(mint));
 
-        var response = mintService.getMintStatus(userId, mintId);
+        var response = mintRequestService.getMintStatus(userId, mintId);
 
         assertNotNull(response);
         assertEquals(mintId, response.getRequestId());
@@ -222,7 +221,7 @@ class MintServiceTest {
     void getMintStatus_NotFound_ThrowsResourceNotFoundException() {
         when(mintRepository.findByUserIdAndId(userId, mintId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> mintService.getMintStatus(userId, mintId));
+        assertThrows(ResourceNotFoundException.class, () -> mintRequestService.getMintStatus(userId, mintId));
 
         verify(mintRepository, times(1)).findByUserIdAndId(userId, mintId);
     }
@@ -232,7 +231,7 @@ class MintServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(mintRepository.findByUser(user)).thenReturn(Collections.singletonList(mint));
 
-        List<MintResponseDto> mints = mintService.getAllMintsForUser(userId);
+        List<MintResponseDto> mints = mintRequestService.getAllMintsForUser(userId);
 
         assertNotNull(mints);
         assertEquals(1, mints.size());
@@ -247,7 +246,7 @@ class MintServiceTest {
     void getAllMintsForUser_UserNotFound_ThrowsResourceNotFoundException() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> mintService.getAllMintsForUser(userId));
+        assertThrows(ResourceNotFoundException.class, () -> mintRequestService.getAllMintsForUser(userId));
 
         verify(userRepository, times(1)).findById(userId);
         verify(mintRepository, never()).findByUser(any(User.class));

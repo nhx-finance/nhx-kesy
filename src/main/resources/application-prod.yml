@@ -51,3 +51,7 @@ multisig:
     - ${PUBLIC_KEY}
     - ${PUBLIC_KEY2}
     - ${PUBLIC_KEY3}
+
+sdk:
+  url: ${SDK_URL}
+  sdk-api-key: ${SDK_API_KEY}

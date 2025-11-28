@@ -4,7 +4,7 @@ import com.javaguy.nhx.model.dto.request.MintRequest;
 import com.javaguy.nhx.model.dto.response.MintResponse;
 import com.javaguy.nhx.model.dto.response.MintStatusResponse;
 import com.javaguy.nhx.security.UserPrincipal;
-import com.javaguy.nhx.service.mint.MintService;
+import com.javaguy.nhx.service.mint.MintRequestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,7 +29,7 @@ import java.util.UUID;
 @Tag(name = "Token Minting", description = "APIs for managing token minting requests")
 public class KesyController {
 
-    private final MintService mintService;
+    private final MintRequestService mintRequestService;
 
     @Operation(summary = "Request Token Mint", description = "Submits a request to mint KESY tokens. Requires KYC VERIFIED status and a minimum amount.")
     @ApiResponses(value = {
@@ -48,7 +48,7 @@ public class KesyController {
     public ResponseEntity<MintResponse> requestMint(
             @Valid @RequestBody MintRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser) {
-        MintResponse response = mintService.requestMint(currentUser.getId(), request);
+        MintResponse response = mintRequestService.requestMint(currentUser.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -67,7 +67,7 @@ public class KesyController {
     public ResponseEntity<MintStatusResponse> getMintStatus(
             @PathVariable UUID requestId,
             @AuthenticationPrincipal UserPrincipal currentUser) {
-        MintStatusResponse response = mintService.getMintStatus(currentUser.getId(), requestId);
+        MintStatusResponse response = mintRequestService.getMintStatus(currentUser.getId(), requestId);
         return ResponseEntity.ok(response);
     }
 }
