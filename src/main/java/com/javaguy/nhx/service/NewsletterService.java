@@ -5,7 +5,7 @@ import com.javaguy.nhx.repository.NewsletterSubscriberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import com.javaguy.nhx.exception.ConflictException;
+import com.javaguy.nhx.exception.custom.ConflictException;
 
 @Service
 @RequiredArgsConstructor
