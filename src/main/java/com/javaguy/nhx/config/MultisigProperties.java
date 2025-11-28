@@ -12,4 +12,5 @@ import java.util.List;
 public class MultisigProperties {
     private String accountId;
     private List<String> keyList;
+    private String network;
 }

@@ -46,6 +46,7 @@ multisig:
   api:
     url: ${MULTISIG_API_URL}
   account-id: ${ACCOUNT_ID}
+  network: ${MULTISIG_NETWORK}
   key-list:
     - ${PUBLIC_KEY}
     - ${PUBLIC_KEY2}

@@ -7,6 +7,10 @@ import com.javaguy.nhx.exception.custom.ForbiddenException;
 import com.javaguy.nhx.exception.custom.ConflictException;
 import com.javaguy.nhx.exception.custom.ValidationException;
 import com.javaguy.nhx.exception.custom.InternalServerException;
+import com.javaguy.nhx.exception.custom.KycNotVerifiedException;
+import com.javaguy.nhx.exception.custom.AccountDisabledException;
+import com.javaguy.nhx.exception.custom.ServiceUnavailableException;
+import com.javaguy.nhx.exception.custom.BaseException;
 import com.javaguy.nhx.model.dto.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -27,12 +31,15 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import java.util.Collections;
 import java.util.Set;
 import org.springframework.http.HttpInputMessage;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -57,7 +64,8 @@ public class GlobalExceptionHandlerTest {
     @Test
     void handleResourceNotFoundException() {
         ResourceNotFoundException ex = new ResourceNotFoundException("Resource not found test");
-        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleResourceNotFoundException(ex, request);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleResourceNotFoundException(ex,
+                request);
 
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
@@ -135,7 +143,8 @@ public class GlobalExceptionHandlerTest {
     @Test
     void handleInternalServerException() {
         InternalServerException ex = new InternalServerException("Internal server error test");
-        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleInternalServerException(ex, request);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleInternalServerException(ex,
+                request);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
@@ -171,7 +180,8 @@ public class GlobalExceptionHandlerTest {
     @Test
     void handleMissingServletRequestParameterException() {
         MissingServletRequestParameterException ex = new MissingServletRequestParameterException("param", "String");
-        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleMissingServletRequestParameter(ex, request);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleMissingServletRequestParameter(ex,
+                request);
 
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
@@ -184,7 +194,8 @@ public class GlobalExceptionHandlerTest {
     @Test
     void handleHttpRequestMethodNotSupportedException() {
         HttpRequestMethodNotSupportedException ex = new HttpRequestMethodNotSupportedException("GET");
-        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleHttpRequestMethodNotSupported(ex, request);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleHttpRequestMethodNotSupported(ex,
+                request);
 
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
@@ -203,20 +214,23 @@ public class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
         assertEquals(400, responseEntity.getBody().getStatus());
-        assertEquals("Message Not Readable", responseEntity.getBody().getError());
-        assertEquals("Malformed JSON request", responseEntity.getBody().getMessage());
+        assertEquals("Invalid Request Format", responseEntity.getBody().getError());
+        assertEquals("Malformed JSON request body. Please ensure the JSON is valid and well-formed.",
+                responseEntity.getBody().getMessage());
         assertEquals("/api/test", responseEntity.getBody().getPath());
     }
 
     @Test
     void handleMethodArgumentTypeMismatchException() {
-        MethodArgumentTypeMismatchException ex = new MethodArgumentTypeMismatchException("value", String.class, "name", null, new IllegalArgumentException());
-        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleMethodArgumentTypeMismatch(ex, request);
+        MethodArgumentTypeMismatchException ex = new MethodArgumentTypeMismatchException("value", String.class, "name",
+                null, new IllegalArgumentException());
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleMethodArgumentTypeMismatch(ex,
+                request);
 
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
         assertEquals(400, responseEntity.getBody().getStatus());
-        assertEquals("Argument Type Mismatch", responseEntity.getBody().getError());
+        assertEquals("Invalid Parameter Type", responseEntity.getBody().getError());
         assertNotNull(responseEntity.getBody().getMessage());
         assertEquals("/api/test", responseEntity.getBody().getPath());
     }
@@ -224,7 +238,8 @@ public class GlobalExceptionHandlerTest {
     @Test
     void handleHttpMediaTypeNotSupportedException() {
         HttpMediaTypeNotSupportedException ex = new HttpMediaTypeNotSupportedException("application/xml");
-        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleHttpMediaTypeNotSupported(ex, request);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleHttpMediaTypeNotSupported(ex,
+                request);
 
         assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
@@ -249,8 +264,10 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void handleAuthenticationException() {
-        AuthenticationException ex = new AuthenticationException("Authentication failed test") {};
-        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleAuthenticationException(ex, request);
+        AuthenticationException ex = new AuthenticationException("Authentication failed test") {
+        };
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleAuthenticationException(ex,
+                request);
 
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
@@ -269,7 +286,8 @@ public class GlobalExceptionHandlerTest {
         assertNotNull(responseEntity.getBody());
         assertEquals(409, responseEntity.getBody().getStatus());
         assertEquals("Data Integrity Violation", responseEntity.getBody().getError());
-        assertEquals("A data integrity violation occurred.", responseEntity.getBody().getMessage());
+        assertEquals("Data integrity violation. This could be a duplicate entry or a foreign key constraint violation.",
+                responseEntity.getBody().getMessage());
         assertEquals("/api/test", responseEntity.getBody().getPath());
     }
 
@@ -282,7 +300,214 @@ public class GlobalExceptionHandlerTest {
         assertNotNull(responseEntity.getBody());
         assertEquals(500, responseEntity.getBody().getStatus());
         assertEquals("Internal Server Error", responseEntity.getBody().getError());
-        assertEquals("An unexpected error occurred. Please try again later.", responseEntity.getBody().getMessage());
+        assertEquals("An unexpected error occurred. Please try again later or contact support if the problem persists.",
+                responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleKycNotVerifiedException() {
+        KycNotVerifiedException ex = new KycNotVerifiedException("KYC verification pending");
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleKycNotVerifiedException(ex,
+                request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(400, responseEntity.getBody().getStatus());
+        assertEquals("KYC Verification Required", responseEntity.getBody().getError());
+        assertEquals("KYC verification pending", responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleAccountDisabledException() {
+        AccountDisabledException ex = new AccountDisabledException("Account has been disabled");
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleAccountDisabledException(ex,
+                request);
+
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(403, responseEntity.getBody().getStatus());
+        assertEquals("Account Disabled", responseEntity.getBody().getError());
+        assertEquals("Account has been disabled", responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleServiceUnavailableException() {
+        ServiceUnavailableException ex = new ServiceUnavailableException("External service is down");
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleServiceUnavailableException(ex,
+                request);
+
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(503, responseEntity.getBody().getStatus());
+        assertEquals("Service Unavailable", responseEntity.getBody().getError());
+        assertEquals("External service is down", responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleMissingServletRequestPartException() {
+        MissingServletRequestPartException ex = new MissingServletRequestPartException("profilePicture");
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleMissingServletRequestPart(ex,
+                request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(400, responseEntity.getBody().getStatus());
+        assertEquals("Validation Error", responseEntity.getBody().getError());
+        assertEquals("Missing required file part: profilePicture", responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleMethodArgumentNotValidException() {
+        BindingResult bindingResult = mock(BindingResult.class);
+        FieldError fieldError = new FieldError("user", "email", "Invalid email format");
+        when(bindingResult.getFieldErrors()).thenReturn(Collections.singletonList(fieldError));
+
+        MethodArgumentNotValidException ex = new MethodArgumentNotValidException(null, bindingResult);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleMethodArgumentNotValid(ex, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(400, responseEntity.getBody().getStatus());
+        assertEquals("Validation Error", responseEntity.getBody().getError());
+        assertEquals("email: Invalid email format", responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleDataIntegrityViolationExceptionWithUniqueConstraint() {
+        DataIntegrityViolationException ex = new DataIntegrityViolationException(
+                "Unique constraint violation: email already exists",
+                new RuntimeException("Unique constraint"));
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleDataIntegrityViolation(ex, request);
+
+        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(409, responseEntity.getBody().getStatus());
+        assertEquals("Data Integrity Violation", responseEntity.getBody().getError());
+        assertEquals("This record already exists. Please use a unique value.", responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleDataIntegrityViolationExceptionWithForeignKeyConstraint() {
+        DataIntegrityViolationException ex = new DataIntegrityViolationException(
+                "Foreign key constraint violation: cannot delete",
+                new RuntimeException("Foreign key constraint"));
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleDataIntegrityViolation(ex, request);
+
+        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(409, responseEntity.getBody().getStatus());
+        assertEquals("Data Integrity Violation", responseEntity.getBody().getError());
+        assertEquals("Cannot perform this operation due to related records in the system.",
+                responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleDataIntegrityViolationExceptionWithNotNullConstraint() {
+        DataIntegrityViolationException ex = new DataIntegrityViolationException(
+                "NOT NULL constraint violation: field required",
+                new RuntimeException("NOT NULL constraint"));
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleDataIntegrityViolation(ex, request);
+
+        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(409, responseEntity.getBody().getStatus());
+        assertEquals("Data Integrity Violation", responseEntity.getBody().getError());
+        assertEquals("One or more required fields are missing.", responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleResourceNotFoundExceptionWithNullMessage() {
+        ResourceNotFoundException ex = new ResourceNotFoundException(null);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleResourceNotFoundException(ex,
+                request);
+
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(404, responseEntity.getBody().getStatus());
+        assertEquals("Resource Not Found", responseEntity.getBody().getError());
+        assertEquals("The requested resource was not found", responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleKycNotVerifiedExceptionWithNullMessage() {
+        KycNotVerifiedException ex = new KycNotVerifiedException(null);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleKycNotVerifiedException(ex,
+                request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(400, responseEntity.getBody().getStatus());
+        assertEquals("KYC Verification Required", responseEntity.getBody().getError());
+        assertEquals("Your KYC verification is pending or has not been completed. Please complete KYC to proceed.",
+                responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleAccountDisabledExceptionWithNullMessage() {
+        AccountDisabledException ex = new AccountDisabledException(null);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleAccountDisabledException(ex,
+                request);
+
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(403, responseEntity.getBody().getStatus());
+        assertEquals("Account Disabled", responseEntity.getBody().getError());
+        assertEquals("Your account has been disabled. Please contact support for assistance.",
+                responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleServiceUnavailableExceptionWithNullMessage() {
+        ServiceUnavailableException ex = new ServiceUnavailableException(null);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleServiceUnavailableException(ex,
+                request);
+
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(503, responseEntity.getBody().getStatus());
+        assertEquals("Service Unavailable", responseEntity.getBody().getError());
+        assertEquals("The service is temporarily unavailable. Please try again later.",
+                responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleUnauthorizedExceptionWithNullMessage() {
+        UnauthorizedException ex = new UnauthorizedException(null);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleUnauthorizedException(ex, request);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(401, responseEntity.getBody().getStatus());
+        assertEquals("Unauthorized", responseEntity.getBody().getError());
+        assertEquals("Authentication credentials are missing or invalid",
+                responseEntity.getBody().getMessage());
+        assertEquals("/api/test", responseEntity.getBody().getPath());
+    }
+
+    @Test
+    void handleForbiddenExceptionWithNullMessage() {
+        ForbiddenException ex = new ForbiddenException(null);
+        ResponseEntity<ErrorResponse> responseEntity = globalExceptionHandler.handleForbiddenException(ex, request);
+
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(403, responseEntity.getBody().getStatus());
+        assertEquals("Forbidden", responseEntity.getBody().getError());
+        assertEquals("You do not have permission to access this resource",
+                responseEntity.getBody().getMessage());
         assertEquals("/api/test", responseEntity.getBody().getPath());
     }
 }

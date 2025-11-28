@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: nhx-kesy-platform
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  mail:
+    host: localhost
+    port: 1025
+    username: user
+    password: pass
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  azure:
+    storage:
+      blob:
+        account-name: mockaccount
+        account-key: mockkey
+        connection-string: DefaultEndpointsProtocol=https;AccountName=mockaccount;AccountKey=mockkey;EndpointSuffix=core.windows.net
+
+logging:
+  level:
+    com.javaguy.nhx: INFO
+    org.springframework.security: INFO
+    org.hibernate: OFF
+
+app:
+  admin:
+    email: admin@test.com

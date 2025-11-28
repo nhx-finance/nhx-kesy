@@ -54,8 +54,7 @@ public class EmailNotificationService implements NotificationService {
                 "Your " + appName + " Verification Code",
                 "email-otp",
                 variables,
-                "OTP"
-        );
+                "OTP");
     }
 
     @Override
@@ -69,8 +68,7 @@ public class EmailNotificationService implements NotificationService {
                 "Welcome to " + appName,
                 "email-welcome",
                 variables,
-                "Welcome"
-        );
+                "Welcome");
     }
 
     @Override
@@ -93,8 +91,7 @@ public class EmailNotificationService implements NotificationService {
                 "KYC Submission Received: " + user.getEmail(),
                 "email-admin-kyc-submission",
                 variables,
-                "KYC Submission Admin"
-        );
+                "KYC Submission Admin");
     }
 
     @Override
@@ -152,7 +149,7 @@ public class EmailNotificationService implements NotificationService {
     }
 
     private void sendHtmlEmail(String to, String subject, String templateName,
-                               Map<String, Object> variables, String type) {
+            Map<String, Object> variables, String type) {
         try {
             variables.put("appName", appName);
             variables.put("supportEmail", supportEmail);
@@ -173,7 +170,7 @@ public class EmailNotificationService implements NotificationService {
 
             mailSender.send(message);
             log.info("Sent {} HTML email to: {}", type, to);
-        } catch (MessagingException e) {
+        } catch (MessagingException | RuntimeException e) {
             log.error("Failed to send {} email to {}: {}", type, to, e.getMessage(), e);
             throw new EmailServiceException("Failed to send " + type + " email to " + to, e);
         }
