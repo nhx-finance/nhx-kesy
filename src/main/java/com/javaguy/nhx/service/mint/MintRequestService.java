@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MintService {
+public class MintRequestService {
 
     private final MintRepository mintRepository;
     private final UserRepository userRepository;

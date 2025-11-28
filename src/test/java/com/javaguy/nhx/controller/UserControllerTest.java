@@ -11,7 +11,7 @@ import com.javaguy.nhx.model.enums.KycStatus;
 import com.javaguy.nhx.security.CustomUserDetailsService;
 import com.javaguy.nhx.security.JwtTokenProvider;
 import com.javaguy.nhx.security.WithUserPrincipal;
-import com.javaguy.nhx.service.mint.MintService;
+import com.javaguy.nhx.service.mint.MintRequestService;
 import com.javaguy.nhx.service.auth.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ class UserControllerTest {
         @MockitoBean
         private UserService userService;
         @MockitoBean
-        private MintService mintService;
+        private MintRequestService mintRequestService;
         @MockitoBean
         private JwtTokenProvider jwtTokenProvider;
         @MockitoBean
@@ -254,7 +254,7 @@ class UserControllerTest {
         @Test
         @WithUserPrincipal(username = "test@example.com", roles = "USER")
         void getAllMints_Authenticated_ReturnsOk() throws Exception {
-                when(mintService.getAllMintsForUser(any(UUID.class)))
+                when(mintRequestService.getAllMintsForUser(any(UUID.class)))
                                 .thenReturn(Collections.singletonList(mintResponseDto));
 
                 mockMvc.perform(get("/api/user/mints"))
@@ -262,7 +262,7 @@ class UserControllerTest {
                                 .andExpect(jsonPath("$[0].id").value(mintResponseDto.getId().toString()))
                                 .andExpect(jsonPath("$[0].amountKes").value(mintResponseDto.getAmountKes()));
 
-                verify(mintService, times(1)).getAllMintsForUser(any(UUID.class));
+                verify(mintRequestService, times(1)).getAllMintsForUser(any(UUID.class));
         }
 
         @Test
@@ -270,18 +270,18 @@ class UserControllerTest {
                 mockMvc.perform(get("/api/user/mints"))
                                 .andExpect(status().isUnauthorized());
 
-                verify(mintService, never()).getAllMintsForUser(any(UUID.class));
+                verify(mintRequestService, never()).getAllMintsForUser(any(UUID.class));
         }
 
         @Test
         @WithUserPrincipal(username = "test@example.com", roles = "USER")
         void getAllMints_UserNotFound_ReturnsNotFound() throws Exception {
-                when(mintService.getAllMintsForUser(any(UUID.class)))
+                when(mintRequestService.getAllMintsForUser(any(UUID.class)))
                                 .thenThrow(new ResourceNotFoundException("User not found"));
 
                 mockMvc.perform(get("/api/user/mints"))
                                 .andExpect(status().isNotFound());
 
-                verify(mintService, times(1)).getAllMintsForUser(any(UUID.class));
+                verify(mintRequestService, times(1)).getAllMintsForUser(any(UUID.class));
         }
 }

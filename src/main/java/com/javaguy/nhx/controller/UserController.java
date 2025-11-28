@@ -5,7 +5,7 @@ import com.javaguy.nhx.model.dto.request.UserProfileRequest;
 import com.javaguy.nhx.model.dto.response.MintResponseDto;
 import com.javaguy.nhx.model.dto.response.UserProfileResponse;
 import com.javaguy.nhx.security.UserPrincipal;
-import com.javaguy.nhx.service.mint.MintService;
+import com.javaguy.nhx.service.mint.MintRequestService;
 import com.javaguy.nhx.service.auth.UserService;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import jakarta.validation.Valid;
@@ -33,7 +33,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final MintService mintService;
+    private final MintRequestService mintRequestService;
 
     @Operation(summary = "Submit user details", description = "Allows an authenticated user to submit their personal details.")
     @ApiResponses(value = {
@@ -97,7 +97,7 @@ public class UserController {
     @GetMapping("/mints")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<MintResponseDto>> getAllMints(@AuthenticationPrincipal UserPrincipal currentUser) {
-        List<MintResponseDto> mints = mintService.getAllMintsForUser(currentUser.getId());
+        List<MintResponseDto> mints = mintRequestService.getAllMintsForUser(currentUser.getId());
         return ResponseEntity.ok(mints);
     }
 }
