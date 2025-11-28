@@ -15,6 +15,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -47,7 +48,7 @@ public class GlobalExceptionHandler {
      * Helper method to log and return error response
      */
     private ResponseEntity<ErrorResponse> logAndRespond(HttpStatus status, String title, String message,
-                                                        String path, Exception ex, boolean isError) {
+            String path, Exception ex, boolean isError) {
         if (isError) {
             log.error("{}: {} | Path: {}", title, message, path, ex);
         } else {
@@ -60,7 +61,8 @@ public class GlobalExceptionHandler {
     // ==================== Custom Application Exceptions ====================
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
+            HttpServletRequest request) {
         String message = ex.getMessage() != null ? ex.getMessage() : "The requested resource was not found";
         return logAndRespond(HttpStatus.NOT_FOUND, "Resource Not Found", message, request.getRequestURI(), ex, false);
     }
@@ -72,14 +74,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex, HttpServletRequest request) {
-        String message = ex.getMessage() != null ? ex.getMessage() : "Authentication credentials are missing or invalid";
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex,
+            HttpServletRequest request) {
+        String message = ex.getMessage() != null ? ex.getMessage()
+                : "Authentication credentials are missing or invalid";
         return logAndRespond(HttpStatus.UNAUTHORIZED, "Unauthorized", message, request.getRequestURI(), ex, false);
     }
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ErrorResponse> handleForbiddenException(ForbiddenException ex, HttpServletRequest request) {
-        String message = ex.getMessage() != null ? ex.getMessage() : "You do not have permission to access this resource";
+        String message = ex.getMessage() != null ? ex.getMessage()
+                : "You do not have permission to access this resource";
         return logAndRespond(HttpStatus.FORBIDDEN, "Forbidden", message, request.getRequestURI(), ex, false);
     }
 
@@ -96,20 +101,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InternalServerException.class)
-    public ResponseEntity<ErrorResponse> handleInternalServerException(InternalServerException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleInternalServerException(InternalServerException ex,
+            HttpServletRequest request) {
         String message = ex.getMessage() != null ? ex.getMessage() : "An internal server error occurred";
-        return logAndRespond(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", message, request.getRequestURI(), ex, true);
+        return logAndRespond(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", message,
+                request.getRequestURI(), ex, true);
     }
 
     @ExceptionHandler(KycNotVerifiedException.class)
-    public ResponseEntity<ErrorResponse> handleKycNotVerifiedException(KycNotVerifiedException ex, HttpServletRequest request) {
-        String message = ex.getMessage() != null ? ex.getMessage() : "Your KYC verification is pending or has not been completed. Please complete KYC to proceed.";
-        return logAndRespond(HttpStatus.BAD_REQUEST, "KYC Verification Required", message, request.getRequestURI(), ex, false);
+    public ResponseEntity<ErrorResponse> handleKycNotVerifiedException(KycNotVerifiedException ex,
+            HttpServletRequest request) {
+        String message = ex.getMessage() != null ? ex.getMessage()
+                : "Your KYC verification is pending or has not been completed. Please complete KYC to proceed.";
+        return logAndRespond(HttpStatus.BAD_REQUEST, "KYC Verification Required", message, request.getRequestURI(), ex,
+                false);
     }
 
     @ExceptionHandler(AccountDisabledException.class)
-    public ResponseEntity<ErrorResponse> handleAccountDisabledException(AccountDisabledException ex, HttpServletRequest request) {
-        String message = ex.getMessage() != null ? ex.getMessage() : "Your account has been disabled. Please contact support for assistance.";
+    public ResponseEntity<ErrorResponse> handleAccountDisabledException(AccountDisabledException ex,
+            HttpServletRequest request) {
+        String message = ex.getMessage() != null ? ex.getMessage()
+                : "Your account has been disabled. Please contact support for assistance.";
         return logAndRespond(HttpStatus.FORBIDDEN, "Account Disabled", message, request.getRequestURI(), ex, false);
     }
 
@@ -121,15 +133,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ServiceUnavailableException.class)
-    public ResponseEntity<ErrorResponse> handleServiceUnavailableException(ServiceUnavailableException ex, HttpServletRequest request) {
-        String message = ex.getMessage() != null ? ex.getMessage() : "The service is temporarily unavailable. Please try again later.";
-        return logAndRespond(HttpStatus.SERVICE_UNAVAILABLE, "Service Unavailable", message, request.getRequestURI(), ex, true);
+    public ResponseEntity<ErrorResponse> handleServiceUnavailableException(ServiceUnavailableException ex,
+            HttpServletRequest request) {
+        String message = ex.getMessage() != null ? ex.getMessage()
+                : "The service is temporarily unavailable. Please try again later.";
+        return logAndRespond(HttpStatus.SERVICE_UNAVAILABLE, "Service Unavailable", message, request.getRequestURI(),
+                ex, true);
     }
 
-    // ==================== Spring & Jakarta Validation Exceptions ====================
+    // ==================== Spring & Jakarta Validation Exceptions
+    // ====================
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining("; "));
@@ -138,11 +155,22 @@ public class GlobalExceptionHandler {
             errorMessage = "One or more fields have validation errors";
         }
 
-        return logAndRespond(HttpStatus.BAD_REQUEST, "Validation Error", errorMessage, request.getRequestURI(), ex, false);
+        return logAndRespond(HttpStatus.BAD_REQUEST, "Validation Error", errorMessage, request.getRequestURI(), ex,
+                false);
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestPart(MissingServletRequestPartException ex,
+            HttpServletRequest request) {
+        String partName = ex.getRequestPartName() != null ? ex.getRequestPartName() : "required part";
+        String errorMessage = "Missing required file part: " + partName;
+        return logAndRespond(HttpStatus.BAD_REQUEST, "Validation Error", errorMessage, request.getRequestURI(), ex,
+                false);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex,
+            HttpServletRequest request) {
         String errorMessage = ex.getConstraintViolations().stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                 .collect(Collectors.joining("; "));
@@ -151,68 +179,85 @@ public class GlobalExceptionHandler {
             errorMessage = "A constraint violation occurred";
         }
 
-        return logAndRespond(HttpStatus.BAD_REQUEST, "Constraint Violation", errorMessage, request.getRequestURI(), ex, false);
+        return logAndRespond(HttpStatus.BAD_REQUEST, "Constraint Violation", errorMessage, request.getRequestURI(), ex,
+                false);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpServletRequest request) {
-        String message = String.format("Required parameter '%s' (type: %s) is missing", ex.getParameterName(), ex.getParameterType());
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException ex, HttpServletRequest request) {
+        String message = String.format("Required parameter '%s' (type: %s) is missing", ex.getParameterName(),
+                ex.getParameterType());
         return logAndRespond(HttpStatus.BAD_REQUEST, "Missing Parameter", message, request.getRequestURI(), ex, false);
     }
 
     // ==================== HTTP Method & Media Type Exceptions ====================
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
+            HttpServletRequest request) {
         String message = String.format("HTTP method '%s' is not supported for this endpoint", ex.getMethod());
-        return logAndRespond(HttpStatus.METHOD_NOT_ALLOWED, "Method Not Allowed", message, request.getRequestURI(), ex, false);
+        return logAndRespond(HttpStatus.METHOD_NOT_ALLOWED, "Method Not Allowed", message, request.getRequestURI(), ex,
+                false);
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex,
+            HttpServletRequest request) {
         String message = String.format("Content-Type '%s' is not supported. Supported types: %s",
                 ex.getContentType(), ex.getSupportedMediaTypes());
-        return logAndRespond(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported Media Type", message, request.getRequestURI(), ex, false);
+        return logAndRespond(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported Media Type", message,
+                request.getRequestURI(), ex, false);
     }
 
     // ==================== Request/Response Parsing Exceptions ====================
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+            HttpServletRequest request) {
         String message = "Malformed JSON request body. Please ensure the JSON is valid and well-formed.";
         Throwable cause = ex.getCause();
         if (cause != null && cause.getMessage() != null) {
             message += " Details: " + cause.getMessage();
         }
-        return logAndRespond(HttpStatus.BAD_REQUEST, "Invalid Request Format", message, request.getRequestURI(), ex, false);
+        return logAndRespond(HttpStatus.BAD_REQUEST, "Invalid Request Format", message, request.getRequestURI(), ex,
+                false);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request) {
         String expectedType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
         String message = String.format("Parameter '%s' has invalid value '%s'. Expected type: %s (e.g., '%s')",
                 ex.getName(), ex.getValue(), expectedType, getExampleValue(expectedType));
-        return logAndRespond(HttpStatus.BAD_REQUEST, "Invalid Parameter Type", message, request.getRequestURI(), ex, false);
+        return logAndRespond(HttpStatus.BAD_REQUEST, "Invalid Parameter Type", message, request.getRequestURI(), ex,
+                false);
     }
 
     // ==================== Security Exceptions ====================
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
-        String message = ex.getMessage() != null ? ex.getMessage() : "You do not have permission to access this resource";
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex,
+            HttpServletRequest request) {
+        String message = ex.getMessage() != null ? ex.getMessage()
+                : "You do not have permission to access this resource";
         return logAndRespond(HttpStatus.FORBIDDEN, "Access Denied", message, request.getRequestURI(), ex, false);
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
-        String message = ex.getMessage() != null ? ex.getMessage() : "Authentication failed. Please provide valid credentials.";
-        return logAndRespond(HttpStatus.UNAUTHORIZED, "Authentication Failed", message, request.getRequestURI(), ex, false);
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex,
+            HttpServletRequest request) {
+        String message = ex.getMessage() != null ? ex.getMessage()
+                : "Authentication failed. Please provide valid credentials.";
+        return logAndRespond(HttpStatus.UNAUTHORIZED, "Authentication Failed", message, request.getRequestURI(), ex,
+                false);
     }
 
     // ==================== Database Exceptions ====================
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex,
+            HttpServletRequest request) {
         String message = "Data integrity violation. This could be a duplicate entry or a foreign key constraint violation.";
 
         String exceptionMessage = ex.getMessage();
@@ -226,7 +271,8 @@ public class GlobalExceptionHandler {
             }
         }
 
-        return logAndRespond(HttpStatus.CONFLICT, "Data Integrity Violation", message, request.getRequestURI(), ex, false);
+        return logAndRespond(HttpStatus.CONFLICT, "Data Integrity Violation", message, request.getRequestURI(), ex,
+                false);
     }
 
     // ==================== Fallback Exception Handler ====================
@@ -240,7 +286,8 @@ public class GlobalExceptionHandler {
                 ex.getClass().getName(), ex.getMessage(), request.getRequestURI(), ex);
 
         String message = "An unexpected error occurred. Please try again later or contact support if the problem persists.";
-        return logAndRespond(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", message, request.getRequestURI(), ex, true);
+        return logAndRespond(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", message,
+                request.getRequestURI(), ex, true);
     }
 
     // ==================== Utility Methods ====================
