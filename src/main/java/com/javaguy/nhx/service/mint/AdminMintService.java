@@ -28,8 +28,8 @@ public class AdminMintService {
 
     public String transfer(AdminTransferRequest request) {
         String url = SDK_URL + "/api/token/transfer";
-        log.info("preparing to make transfer request amount: {}, to: {}", request.amount(), request.accountId());
-        
+        log.info("preparing to make transfer request amount: {}, to: {}", request.amount(), request.targetAccountId());
+
         try {
             String response = restClient.post()
                     .uri(url)
@@ -57,11 +57,12 @@ public class AdminMintService {
 
         } catch (Exception e) {
             log.error("Unexpected error while calling sdk API: {}", e.getMessage(), e);
-            throw new InternalServerException("An unexpected error occurred with the sdk service. Please try again later.", e);
+            throw new InternalServerException(
+                    "An unexpected error occurred with the sdk service. Please try again later.", e);
         }
     }
 
-    //mint service
+    // mint service
     public String mint(AdminMintRequest request) {
         String url = SDK_URL + "/api/mint";
         log.info("Mint request: {}", request);
@@ -93,7 +94,8 @@ public class AdminMintService {
 
         } catch (Exception e) {
             log.error("Unexpected error while calling sdk API: {}", e.getMessage(), e);
-            throw new InternalServerException("An unexpected error occurred with the sdk service. Please try again later.", e);
+            throw new InternalServerException(
+                    "An unexpected error occurred with the sdk service. Please try again later.", e);
         }
     }
 }
