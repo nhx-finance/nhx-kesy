@@ -5,6 +5,8 @@ import com.javaguy.nhx.exception.custom.InternalServerException;
 import com.javaguy.nhx.exception.custom.ServiceUnavailableException;
 import com.javaguy.nhx.model.dto.request.AdminMintRequest;
 import com.javaguy.nhx.model.dto.request.AdminTransferRequest;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -26,9 +30,11 @@ public class AdminMintService {
     @Value("${sdk.sdk-api-key}")
     private String SDK_API_KEY;
 
+    @Retry(name = "sdkApi")
+    @CircuitBreaker(name = "sdkApi", fallbackMethod = "transferFallback")
     public String transfer(AdminTransferRequest request) {
         String url = SDK_URL + "/api/token/transfer";
-        log.info("preparing to make transfer request amount: {}, to: {}", request.amount(), request.targetAccountId());
+        String requestId = UUID.randomUUID().toString();
 
         try {
             String response = restClient.post()
@@ -37,35 +43,40 @@ public class AdminMintService {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Origin", SDK_URL)
                     .header("Authorization", "Bearer " + SDK_API_KEY)
+                    .header("X-Request-ID", requestId)
+                    .header("Idempotency-Key", requestId)
                     .retrieve()
                     .body(String.class);
-            log.info("transfer response: {}", response);
             return response;
         } catch (HttpClientErrorException e) {
-            log.error("Client error from sdk API (4xx) at {}: Status={}, Body={}",
-                    url, e.getStatusCode(), e.getResponseBodyAsString(), e);
+            log.warn("SDK client error ({}): {}", e.getStatusCode(), e.getMessage());
             throw new BadRequestException("Client error while calling sdk API: " + e.getMessage(), e);
 
         } catch (HttpServerErrorException e) {
-            log.error("Server error from sdk API (5xx) at {}: Status={}, Body={}",
-                    url, e.getStatusCode(), e.getResponseBodyAsString(), e);
+            log.warn("SDK server error ({}): {}", e.getStatusCode(), e.getMessage());
             throw new InternalServerException("Server error while calling sdk API", e);
 
         } catch (ResourceAccessException e) {
-            log.error("Network error while calling sdk API at {}: {}", url, e.getMessage(), e);
+            log.warn("SDK network error: {}", e.getMessage());
             throw new ServiceUnavailableException("Cannot reach sdk service. Please try again later.", e);
 
         } catch (Exception e) {
-            log.error("Unexpected error while calling sdk API: {}", e.getMessage(), e);
+            log.error("SDK unexpected error: {}", e.getMessage(), e);
             throw new InternalServerException(
                     "An unexpected error occurred with the sdk service. Please try again later.", e);
         }
     }
 
-    // mint service
+    public String transferFallback(AdminTransferRequest request, Exception ex) {
+        log.warn("SDK circuit breaker open for transfer");
+        throw new ServiceUnavailableException("SDK service temporarily unavailable. Please retry later.", ex);
+    }
+
+    @Retry(name = "sdkApi")
+    @CircuitBreaker(name = "sdkApi", fallbackMethod = "mintFallback")
     public String mint(AdminMintRequest request) {
         String url = SDK_URL + "/api/mint";
-        log.info("Mint request: {}", request);
+        String requestId = UUID.randomUUID().toString();
 
         try {
             String response = restClient.post()
@@ -74,28 +85,32 @@ public class AdminMintService {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Origin", SDK_URL)
                     .header("Authorization", "Bearer " + SDK_API_KEY)
+                    .header("X-Request-ID", requestId)
+                    .header("Idempotency-Key", requestId)
                     .retrieve()
                     .body(String.class);
-            log.info("mint response: {}", response);
             return response;
         } catch (HttpClientErrorException e) {
-            log.error("Client error from sdk API (4xx) at {}: Status={}, Body={}",
-                    url, e.getStatusCode(), e.getResponseBodyAsString(), e);
+            log.warn("SDK client error ({}): {}", e.getStatusCode(), e.getMessage());
             throw new BadRequestException("Client error while calling sdk API: " + e.getMessage(), e);
 
         } catch (HttpServerErrorException e) {
-            log.error("Server error from sdk API (5xx) at {}: Status={}, Body={}",
-                    url, e.getStatusCode(), e.getResponseBodyAsString(), e);
+            log.warn("SDK server error ({}): {}", e.getStatusCode(), e.getMessage());
             throw new InternalServerException("Server error while calling sdk API", e);
 
         } catch (ResourceAccessException e) {
-            log.error("Network error while calling sdk API at {}: {}", url, e.getMessage(), e);
+            log.warn("SDK network error: {}", e.getMessage());
             throw new ServiceUnavailableException("Cannot reach sdk service. Please try again later.", e);
 
         } catch (Exception e) {
-            log.error("Unexpected error while calling sdk API: {}", e.getMessage(), e);
+            log.error("SDK unexpected error: {}", e.getMessage(), e);
             throw new InternalServerException(
                     "An unexpected error occurred with the sdk service. Please try again later.", e);
         }
+    }
+
+    public String mintFallback(AdminMintRequest request, Exception ex) {
+        log.warn("SDK circuit breaker open for mint");
+        throw new ServiceUnavailableException("SDK service temporarily unavailable. Please retry later.", ex);
     }
 }
