@@ -56,13 +56,6 @@ sdk:
   url: ${SDK_URL}
   sdk-api-key: ${SDK_API_KEY}
 
-logging:
-  level:
-    root: WARN
-    '[com.javaguy.nhx]': INFO
-    '[org.springframework.web]': WARN
-    '[org.hibernate]': WARN
-
 resilience4j:
   retry:
     instances:
