@@ -84,7 +84,7 @@ public class AdminController {
 
     @PostMapping("/transfer")
     public ResponseEntity<String> transfer(@RequestBody AdminTransferRequest request) {
-        log.info("Admin initiating transfer request for account: {}", request.accountId());
+        log.info("Admin initiating transfer request for account: {}", request.targetAccountId());
         String response = adminMintService.transfer(request);
         return ResponseEntity.ok(response);
     }
