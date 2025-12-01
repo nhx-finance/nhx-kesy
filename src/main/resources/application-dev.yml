@@ -27,3 +27,25 @@ storage:
 logging:
   level:
     com.javaguy.nhx: DEBUG
+
+resilience4j:
+  retry:
+    instances:
+      sdkApi:
+        max-attempts: 3
+        wait-duration: 500
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - com.javaguy.nhx.exception.custom.BadRequestException
+  circuitbreaker:
+    instances:
+      sdkApi:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 30000
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10000
+        permitted-number-of-calls-in-half-open-state: 3

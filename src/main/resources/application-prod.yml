@@ -55,3 +55,32 @@ multisig:
 sdk:
   url: ${SDK_URL}
   sdk-api-key: ${SDK_API_KEY}
+
+logging:
+  level:
+    root: WARN
+    '[com.javaguy.nhx]': INFO
+    '[org.springframework.web]': WARN
+    '[org.hibernate]': WARN
+
+resilience4j:
+  retry:
+    instances:
+      sdkApi:
+        max-attempts: 3
+        wait-duration: 1000
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - com.javaguy.nhx.exception.custom.BadRequestException
+  circuitbreaker:
+    instances:
+      sdkApi:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 40000
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 30000
+        permitted-number-of-calls-in-half-open-state: 3
