@@ -43,7 +43,7 @@ public class MintRequestService {
         private final WalletRepository walletRepository;
         private final NotificationService notificationService;
 
-        private static final BigDecimal MIN_MINT_AMOUNT = new BigDecimal("100.00");
+        private static final BigDecimal MIN_MINT_AMOUNT = new BigDecimal("1000000.00");
 
         @Transactional
         public MintResponse requestMint(UUID userId, MintRequest request) {
