@@ -60,7 +60,7 @@ class KesyControllerTest {
                 mintRequest = new MintRequest();
                 mintRequest.setAmountKes(BigDecimal.valueOf(1000));
                 mintRequest.setWalletId(walletId);
-                mintRequest.setTransaction_message("test message");
+                //mintRequest.setTransaction_message("test message");
                 mintResponse = MintResponse.builder().requestId(requestId).transactionId(UUID.randomUUID()).build();
                 mintStatusResponse = MintStatusResponse.builder()
                                 .requestId(requestId)

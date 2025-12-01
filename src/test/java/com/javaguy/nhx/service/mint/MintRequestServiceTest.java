@@ -88,7 +88,7 @@ class MintRequestServiceTest {
         mintRequest = new MintRequest();
         mintRequest.setAmountKes(BigDecimal.valueOf(150.00));
         mintRequest.setWalletId(walletId);
-        mintRequest.setTransaction_message("Test transaction message");
+        //mintRequest.setTransaction_message("Test transaction message");
 
         mint = Mint.builder()
                 .id(mintId)
@@ -154,7 +154,7 @@ class MintRequestServiceTest {
         mintRequest = new MintRequest();
         mintRequest.setAmountKes(BigDecimal.valueOf(50.00));
         mintRequest.setWalletId(walletId);
-        mintRequest.setTransaction_message("Test message");
+        //mintRequest.setTransaction_message("Test message");
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         assertThrows(InvalidMintAmountException.class, () -> mintRequestService.requestMint(userId, mintRequest));
