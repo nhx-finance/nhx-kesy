@@ -111,7 +111,7 @@ public class MintRequestService {
     @Transactional(readOnly = true)
     public List<MintResponseDto> getAllMintsForUser(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
         return mintRepository.findByUser(user).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
