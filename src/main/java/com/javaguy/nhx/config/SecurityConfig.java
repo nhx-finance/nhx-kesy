@@ -82,7 +82,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
-                "https://nhx-frontend.vercel.app",
+                "https://www.nhx.finance",
                 "http://localhost:3000",
                 "https://devnhx-finance.vercel.app"));
 
