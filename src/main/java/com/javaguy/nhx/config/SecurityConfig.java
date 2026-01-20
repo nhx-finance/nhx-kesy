@@ -88,6 +88,7 @@ public class SecurityConfig {
                 "https://www.nhx.finance",
                 "https://nhx.finance",
                 "http://localhost:3000",
+                "https://admin.nhx.finance",
                 "https://devnhx-finance.vercel.app"));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
