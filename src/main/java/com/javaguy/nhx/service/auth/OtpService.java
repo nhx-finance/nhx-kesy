@@ -37,10 +37,32 @@ public class OtpService {
 
         try {
             emailNotificationService.sendOtpEmail(email, otpCode);
-            log.info("✅ OTP sent to {}", email);
+            log.info("OTP sent to {}", email);
         } catch (Exception e) {
-            log.error("❌ Failed to send OTP email to {}", email, e);
+            log.error("Failed to send OTP email to {}", email, e);
             throw new InternalServerException("Failed to send OTP email", e);
+        }
+    }
+
+    @Transactional
+    public void sendPasswordResetOtp(String email) {
+        String otpCode = OtpGenerator.generateOtp();
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(AppConstants.OTP_EXPIRY_MINUTES);
+
+        Otp otp = Otp.builder()
+                .email(email)
+                .otpCode(otpCode)
+                .expiryTime(expiryTime)
+                .used(false)
+                .build();
+        otpRepository.save(otp);
+
+        try {
+            emailNotificationService.sendPasswordResetOtp(email, otpCode);
+            log.info("Password reset OTP sent to {}", email);
+        } catch (Exception e) {
+            log.error("Failed to send password reset OTP email to {}", email, e);
+            throw new InternalServerException("Failed to send password reset email", e);
         }
     }
 
@@ -52,6 +74,6 @@ public class OtpService {
 
         otp.setUsed(true);
         otpRepository.save(otp);
-        log.info("✅ OTP for {} successfully verified", email);
+        log.info("OTP for {} successfully verified", email);
     }
 }

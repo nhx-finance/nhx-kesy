@@ -58,6 +58,20 @@ public class EmailNotificationService implements NotificationService {
     }
 
     @Override
+    public void sendPasswordResetOtp(String email, String otp) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("otp", otp);
+        variables.put("expiryMinutes", 10);
+
+        sendHtmlEmail(
+                email,
+                "Reset Your " + appName + " Password",
+                "email-password-reset",
+                variables,
+                "Password Reset");
+    }
+
+    @Override
     public void sendWelcomeEmail(User user) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", user.getFirstName() != null ? user.getFirstName() : "there");

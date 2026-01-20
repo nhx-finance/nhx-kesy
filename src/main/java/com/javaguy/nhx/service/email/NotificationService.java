@@ -10,5 +10,6 @@ public interface NotificationService {
     void notifyAdminsOnKycSubmission(User user);
     void notifyUserOnMintStatusChange(User user, Mint mint, String notes);
     void sendOtpEmail(String email, String otp);
+    void sendPasswordResetOtp(String email, String otp);
     void sendWelcomeEmail(User user);
 }

@@ -6,7 +6,9 @@ import com.javaguy.nhx.exception.custom.EmailNotVerifiedException;
 import com.javaguy.nhx.exception.custom.InternalServerException;
 import com.javaguy.nhx.exception.custom.ResourceNotFoundException;
 import com.javaguy.nhx.exception.custom.UnauthorizedException;
+import com.javaguy.nhx.model.dto.request.ForgotPasswordRequest;
 import com.javaguy.nhx.model.dto.request.LoginRequest;
+import com.javaguy.nhx.model.dto.request.ResetPasswordRequest;
 import com.javaguy.nhx.model.dto.request.SignupRequest;
 import com.javaguy.nhx.model.dto.request.VerifyOtpRequest;
 import com.javaguy.nhx.model.dto.response.AuthResponse;
@@ -190,6 +192,31 @@ public class AuthService {
         log.info("Logged out user {} from all devices", user.getEmail());
     }
 
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequest request) {
+        userRepository.findByEmail(request.email())
+                .ifPresentOrElse(
+                        user -> {
+                            otpService.sendPasswordResetOtp(request.email());
+                            log.info("Password reset OTP sent to: {}", request.email());
+                        },
+                        () -> log.warn("Password reset requested for non-existent email: {}", request.email())
+                );
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        otpService.verifyOtp(request.email(), request.otp());
+
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + request.email()));
+
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+
+        revokeAllUserTokens(user);
+        log.info("Password reset successfully for user: {}", request.email());
+    }
 
     private AuthResponse createTokensForUser(User user) {
         String accessToken = tokenProvider.generateToken(user.getId());

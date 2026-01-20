@@ -1,6 +1,8 @@
 package com.javaguy.nhx.controller;
 
+import com.javaguy.nhx.model.dto.request.ForgotPasswordRequest;
 import com.javaguy.nhx.model.dto.request.LoginRequest;
+import com.javaguy.nhx.model.dto.request.ResetPasswordRequest;
 import com.javaguy.nhx.model.dto.request.SignupRequest;
 import com.javaguy.nhx.model.dto.request.VerifyOtpRequest;
 import com.javaguy.nhx.model.dto.response.AuthResponse;
@@ -133,6 +135,39 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(Map.of("message", "Logged out successfully"));
+    }
+
+    @Operation(summary = "Request password reset", description = "Sends a password reset OTP to the user's email if the account exists.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "If the email exists, an OTP will be sent",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid email format",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)))
+    })
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(Map.of("message", "If the email exists, a password reset code has been sent"));
+    }
+
+    @Operation(summary = "Reset password", description = "Resets the user's password using the OTP sent to their email.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired OTP, or invalid password",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)))
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
     }
 
     private ResponseEntity<AuthResponse> buildAuthResponseWithCookies(AuthResponse authResponse) {
